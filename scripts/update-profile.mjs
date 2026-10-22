@@ -571,8 +571,11 @@ async function main() {
   const readme = [
     "<!-- Generated from the public GitHub API by scripts/update-profile.mjs. -->",
     `<p align="center"><a href="https://github.com/${owner}?tab=repositories"><img src="./assets/profile.svg" alt="${escapeXml(profile.name || owner)} GitHub statistics, languages, and contribution activity" /></a></p>`,
+    `<p align="center"><a href="https://github.com/${owner}?tab=repositories"><img src="./assets/project-constellation.gif" width="900" alt="Animated project map connecting ${escapeXml(owner)} to CanteenOS, LibSync, MedikaFlow, BlindMaze, and the SMK BPPI website" /></a></p>`,
     '<h2 align="center">Featured projects</h2>',
     projectTableMarkup(projects),
+    '<h3 align="center">BlindMaze easter egg</h3>',
+    '<p align="center"><a href="https://github.com/FallAbigail/blindmaze-game"><img src="./assets/blindmaze-easter-egg.gif" width="460" alt="A glowing cyan dot solving a small BlindMaze route" /></a></p>',
     `<p align="center"><a href="https://github.com/${owner}?tab=repositories">Explore all repositories →</a></p>`,
     "",
   ].join("\n");
