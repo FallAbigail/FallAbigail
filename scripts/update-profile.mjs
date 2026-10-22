@@ -1,6 +1,6 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readdir, unlink, writeFile } from "node:fs/promises";
 
-const owner = "FallAbigal";
+const owner = "FallAbigail";
 const profileRepository = owner;
 const root = new URL("../", import.meta.url);
 const token = process.env.GITHUB_TOKEN;
@@ -182,21 +182,6 @@ function profileSvg(profile, repositories, languages, activity) {
   const gap = 14;
   const panelWidth = width - padding * 2;
   const topLanguages = languages.slice(0, 6);
-  const featuredOrder = [
-    "CanteenOS",
-    "MedikaFlow",
-    "LibSync",
-    "blindmaze-game",
-    "smk-bppi-baleendah",
-  ];
-  const featuredRank = new Map(featuredOrder.map((name, index) => [name.toLowerCase(), index]));
-  const projects = [...repositories]
-    .sort((left, right) => {
-      const leftRank = featuredRank.get(left.name.toLowerCase()) ?? Number.MAX_SAFE_INTEGER;
-      const rightRank = featuredRank.get(right.name.toLowerCase()) ?? Number.MAX_SAFE_INTEGER;
-      return leftRank - rightRank || right.updated_at.localeCompare(left.updated_at);
-    })
-    .slice(0, 6);
   const stats = [
     { value: repositories.length, label: "PUBLIC REPOS", color: "#75e7ff" },
     { value: repositories.reduce((total, repo) => total + repo.stargazers_count, 0), label: "STARS", color: "#ffd36d" },
@@ -228,12 +213,7 @@ function profileSvg(profile, repositories, languages, activity) {
   const activityHeight = 190;
   y += activityHeight + gap;
 
-  const projectsY = y;
-  const projectRows = Math.ceil(projects.length / 2);
-  const projectCardHeight = 100;
-  const projectRowGap = 10;
-  const projectsHeight = 52 + projectRows * projectCardHeight + Math.max(0, projectRows - 1) * projectRowGap + 18;
-  y += projectsHeight + 22;
+  y += 12;
   const footerY = y;
   const height = footerY + 28;
 
@@ -297,31 +277,9 @@ function profileSvg(profile, repositories, languages, activity) {
     return `<rect class="activity-level-${activityLevel(day)}" x="${x.toFixed(2)}" y="${cellY}" width="${cell}" height="${cell}" rx="2"><title>${escapeXml(day.date)}: ${day.contributionCount} contributions</title></rect>`;
   }).join("")).join("");
 
-  const projectGap = 12;
-  const projectCardWidth = (panelWidth - projectGap) / 2;
-  const projectCards = projects.map((repo, index) => {
-    const row = Math.floor(index / 2);
-    const isLastCentered = projects.length % 2 === 1 && index === projects.length - 1;
-    const column = isLastCentered ? 0.5 : index % 2;
-    const cardWidth = isLastCentered ? projectCardWidth : projectCardWidth;
-    const x = padding + column * (projectCardWidth + projectGap);
-    const cardY = projectsY + 40 + row * (projectCardHeight + projectRowGap);
-    const language = repo.language || "Project";
-    const languageFill = repo.language ? languageColor(repo.language) : "#75e7ff";
-    return `<g>
-      <rect x="${x}" y="${cardY}" width="${cardWidth}" height="${projectCardHeight}" rx="13" class="project-card" />
-      <rect x="${x}" y="${cardY + 17}" width="3" height="34" rx="1.5" fill="${languageFill}" />
-      <text x="${x + 18}" y="${cardY + 31}" class="project-name">${escapeXml(truncate(repo.name, 32))}</text>
-      <text x="${x + 18}" y="${cardY + 52}" class="project-description">${escapeXml(truncate(repo.description || "Public project", 60))}</text>
-      <circle cx="${x + 22}" cy="${cardY + 76}" r="3.5" fill="${languageFill}" />
-      <text x="${x + 32}" y="${cardY + 80}" class="project-meta">${escapeXml(language)}</text>
-      <text x="${x + cardWidth - 16}" y="${cardY + 80}" text-anchor="end" class="project-meta">★ ${repo.stargazers_count}   ·   Forks ${repo.forks_count}</text>
-    </g>`;
-  }).join("");
-
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="title desc">
   <title id="title">${escapeXml(profile.name || profile.login)} — GitHub profile</title>
-  <desc id="desc">An animated developer profile for ${escapeXml(profile.login)} with public repository statistics, programming languages, contribution activity, and featured projects.</desc>
+  <desc id="desc">An animated developer profile for ${escapeXml(profile.login)} with public repository statistics, programming languages, and contribution activity.</desc>
   <style>
     text { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     .panel { fill: #0b0b16; stroke: #25233b; stroke-width: 1; }
@@ -333,10 +291,6 @@ function profileSvg(profile, repositories, languages, activity) {
     .stat-label { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; }
     .body-label { fill: #d9d9ee; font-size: 11px; }
     .body-value { fill: #9293ae; font-size: 10px; font-variant-numeric: tabular-nums; }
-    .project-card { fill: #10101c; stroke: #292741; stroke-width: 1; }
-    .project-name { fill: #f1f2ff; font-size: 13px; font-weight: 700; }
-    .project-description { fill: #a2a3bd; font-size: 10px; }
-    .project-meta { fill: #81829f; font-size: 9px; }
     .activity-level-0 { fill: #171725; stroke: #27263c; stroke-width: .5; }
     .activity-level-1 { fill: #173e47; }
     .activity-level-2 { fill: #187985; }
@@ -410,15 +364,80 @@ function profileSvg(profile, repositories, languages, activity) {
   <text x="${activityGridX + gridWidth}" y="${activityY + 61}" text-anchor="end" class="panel-kicker">MORE</text>
   <g>${activityCells}</g>
 
-  <rect class="panel" x="${padding}" y="${projectsY}" width="${panelWidth}" height="${projectsHeight}" rx="16" />
-  <text x="${padding + 22}" y="${projectsY + 27}" class="panel-title">FEATURED PROJECTS</text>
-  <text x="${width - padding - 22}" y="${projectsY + 27}" text-anchor="end" class="panel-kicker">${projects.length} PUBLIC REPOSITORIES</text>
-  ${projectCards}
-
   <line x1="${padding}" y1="${footerY - 8}" x2="${width - padding}" y2="${footerY - 8}" stroke="#292741" />
-  <text x="${padding + 2}" y="${footerY + 9}" class="panel-kicker">FALLABIGAL · GITHUB PROFILE</text>
+  <text x="${padding + 2}" y="${footerY + 9}" class="panel-kicker">FALLABIGAIL · GITHUB PROFILE</text>
   <text x="${width - padding - 2}" y="${footerY + 9}" text-anchor="end" class="panel-kicker">DATA REFRESHED AUTOMATICALLY</text>
 </svg>`;
+}
+
+function repositorySlug(name) {
+  return name.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-").replaceAll(/^-|-$/g, "");
+}
+
+function featuredRepositories(repositories) {
+  const preferredOrder = [
+    "CanteenOS",
+    "MedikaFlow",
+    "LibSync",
+    "blindmaze-game",
+    "smk-bppi-baleendah",
+  ];
+  const rank = new Map(preferredOrder.map((name, index) => [name.toLowerCase(), index]));
+  return [...repositories]
+    .sort((left, right) => {
+      const leftRank = rank.get(left.name.toLowerCase()) ?? Number.MAX_SAFE_INTEGER;
+      const rightRank = rank.get(right.name.toLowerCase()) ?? Number.MAX_SAFE_INTEGER;
+      return leftRank - rightRank || right.updated_at.localeCompare(left.updated_at);
+    })
+    .slice(0, 6);
+}
+
+function repositoryCardSvg(repository) {
+  const width = 460;
+  const height = 118;
+  const accent = languageColor(repository.language || "TypeScript");
+  const description = truncate(repository.description || "Public GitHub repository", 64);
+  const language = repository.language || "Project";
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="title desc">
+  <title id="title">${escapeXml(repository.name)}</title>
+  <desc id="desc">${escapeXml(description)}. Open the repository on GitHub.</desc>
+  <defs>
+    <linearGradient id="card-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#11111f"/><stop offset="1" stop-color="#0b0b15"/></linearGradient>
+    <linearGradient id="accent-line" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${accent}"/><stop offset="1" stop-color="${accent}" stop-opacity=".2"/></linearGradient>
+  </defs>
+  <style>
+    text { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .name { fill: #f3f3ff; font-size: 15px; font-weight: 700; }
+    .description { fill: #a5a5bf; font-size: 11px; }
+    .meta { fill: #8586a2; font-size: 10px; }
+    .arrow { fill: none; stroke: #9c9db8; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  </style>
+  <rect x="1" y="1" width="${width - 2}" height="${height - 2}" rx="15" fill="url(#card-bg)" stroke="#302d49" />
+  <rect x="1" y="22" width="3" height="54" rx="1.5" fill="url(#accent-line)" />
+  <text x="23" y="34" class="name">${escapeXml(truncate(repository.name, 40))}</text>
+  <text x="23" y="57" class="description">${escapeXml(description)}</text>
+  <circle cx="27" cy="87" r="4" fill="${accent}" />
+  <text x="39" y="91" class="meta">${escapeXml(language)}</text>
+  <text x="${width - 61}" y="91" text-anchor="end" class="meta">★ ${repository.stargazers_count}  ·  Forks ${repository.forks_count}</text>
+  <path class="arrow" d="M ${width - 34} 25 h 10 v 10 M ${width - 44} 36 l 10 -10" />
+</svg>`;
+}
+
+function projectTableMarkup(repositories) {
+  const rows = [];
+  for (let index = 0; index < repositories.length; index += 2) {
+    const row = repositories.slice(index, index + 2).map((repository) => {
+      const fileName = `project-${repositorySlug(repository.name)}.svg`;
+      return `<td align="center"><a href="${escapeXml(repository.html_url)}"><img src="./assets/projects/${fileName}" width="460" alt="Open ${escapeXml(repository.name)} on GitHub" /></a></td>`;
+    });
+    if (row.length === 1 && index > 0) {
+      rows.push(`<tr><td colspan="2" align="center">${row[0].replace('<td align="center">', "").replace("</td>", "")}</td></tr>`);
+    } else {
+      rows.push(`<tr>${row.join("")}</tr>`);
+    }
+  }
+  return `<table align="center" border="0"><tbody>${rows.join("")}</tbody></table>`;
 }
 
 function escapeXml(value) {
@@ -522,20 +541,38 @@ async function main() {
   const languages = [...languagesByName.entries()]
     .sort(([, left], [, right]) => right - left)
     .map(([name, bytes]) => ({ name, bytes, percent: (bytes / totalBytes) * 100 }));
+  const projects = featuredRepositories(repositories);
+  const avatarUrl = `https://github.com/${owner}.png?size=144`;
 
   const readme = [
     "<!-- Generated from the public GitHub API by scripts/update-profile.mjs. -->",
-    '<p align="center"><img src="./assets/profile.svg" alt="FallAbigail GitHub profile with public repository stats, programming languages, contribution activity, and featured projects" /></p>',
-    '<p align="center"><a href="https://github.com/FallAbigal?tab=repositories">Explore all repositories →</a></p>',
+    `<p align="center"><a href="https://github.com/${owner}"><img src="${avatarUrl}" width="112" alt="Current GitHub profile photo for ${owner}" /></a></p>`,
+    `<p align="center"><a href="https://github.com/${owner}?tab=repositories"><img src="./assets/profile.svg" alt="${escapeXml(profile.name || owner)} GitHub statistics, languages, and contribution activity" /></a></p>`,
+    '<h2 align="center">Featured projects</h2>',
+    projectTableMarkup(projects),
+    `<p align="center"><a href="https://github.com/${owner}?tab=repositories">Explore all repositories →</a></p>`,
     "",
   ].join("\n");
 
   const assetsDirectory = new URL("./assets/", root);
+  const projectAssetsDirectory = new URL("./assets/projects/", root);
   await mkdir(assetsDirectory, { recursive: true });
+  await mkdir(projectAssetsDirectory, { recursive: true });
   await writeFile(new URL("./README.md", root), readme, "utf8");
   await writeFile(new URL("./assets/profile.svg", root), profileSvg(profile, repositories, languages, activity), "utf8");
   await writeFile(new URL("./assets/activity.svg", root), activitySvg(activity.user.contributionsCollection), "utf8");
   await writeFile(new URL("./assets/languages.svg", root), languageSvg(languages), "utf8");
+  const projectFiles = new Set();
+  for (const repository of projects) {
+    const fileName = `project-${repositorySlug(repository.name)}.svg`;
+    projectFiles.add(fileName);
+    await writeFile(new URL(`./assets/projects/${fileName}`, root), repositoryCardSvg(repository), "utf8");
+  }
+  for (const fileName of await readdir(projectAssetsDirectory)) {
+    if (fileName.startsWith("project-") && fileName.endsWith(".svg") && !projectFiles.has(fileName)) {
+      await unlink(new URL(`./assets/projects/${fileName}`, root));
+    }
+  }
   console.log(`Updated ${repositories.length} repositories, ${languages.length} languages, and ${activity.user.contributionsCollection.contributionCalendar.totalContributions} contributions.`);
 }
 

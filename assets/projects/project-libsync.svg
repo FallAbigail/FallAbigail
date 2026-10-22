@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="460" height="118" viewBox="0 0 460 118" role="img" aria-labelledby="title desc">
+  <title id="title">LibSync</title>
+  <desc id="desc">Project Perpustakaan Digital. Open the repository on GitHub.</desc>
+  <defs>
+    <linearGradient id="card-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#11111f"/><stop offset="1" stop-color="#0b0b15"/></linearGradient>
+    <linearGradient id="accent-line" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#777bb4"/><stop offset="1" stop-color="#777bb4" stop-opacity=".2"/></linearGradient>
+  </defs>
+  <style>
+    text { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .name { fill: #f3f3ff; font-size: 15px; font-weight: 700; }
+    .description { fill: #a5a5bf; font-size: 11px; }
+    .meta { fill: #8586a2; font-size: 10px; }
+    .arrow { fill: none; stroke: #9c9db8; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  </style>
+  <rect x="1" y="1" width="458" height="116" rx="15" fill="url(#card-bg)" stroke="#302d49" />
+  <rect x="1" y="22" width="3" height="54" rx="1.5" fill="url(#accent-line)" />
+  <text x="23" y="34" class="name">LibSync</text>
+  <text x="23" y="57" class="description">Project Perpustakaan Digital</text>
+  <circle cx="27" cy="87" r="4" fill="#777bb4" />
+  <text x="39" y="91" class="meta">PHP</text>
+  <text x="399" y="91" text-anchor="end" class="meta">★ 0  ·  Forks 0</text>
+  <path class="arrow" d="M 426 25 h 10 v 10 M 416 36 l 10 -10" />
+</svg>

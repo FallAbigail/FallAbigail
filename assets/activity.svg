@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="880" height="210" viewBox="0 0 880 210" role="img" aria-labelledby="title desc">
   <title id="title">15 GitHub contributions in the last 12 months</title>
-  <desc id="desc">Contribution activity for FallAbigal across the last 12 months.</desc>
+  <desc id="desc">Contribution activity for FallAbigail across the last 12 months.</desc>
   <style>
     .card { fill: #ffffff; stroke: #e2e8f0; }
     .title { fill: #0f172a; font: 700 19px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
