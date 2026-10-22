@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import random
+from math import cos, pi, sin
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
@@ -162,135 +162,93 @@ def network_frame(frame_index: int, frame_count: int = 60) -> Image.Image:
     return image.convert("RGB").resize((width, height), Image.Resampling.LANCZOS)
 
 
-def create_maze(cols: int = 13, rows: int = 7) -> tuple[dict[tuple[int, int], dict[str, bool]], list[tuple[int, int]]]:
-    walls = {(x, y): {"N": True, "S": True, "E": True, "W": True} for y in range(rows) for x in range(cols)}
-    directions = [(0, -1, "N", "S"), (1, 0, "E", "W"), (0, 1, "S", "N"), (-1, 0, "W", "E")]
-    rng = random.Random(314)
-    start, goal = (0, rows // 2), (cols - 1, rows // 2)
-    visited = {start}
-    stack = [start]
-    while stack:
-        x, y = stack[-1]
-        options = [(x + dx, y + dy, wall, reverse) for dx, dy, wall, reverse in directions if 0 <= x + dx < cols and 0 <= y + dy < rows and (x + dx, y + dy) not in visited]
-        if not options:
-            stack.pop()
-            continue
-        nx, ny, wall, reverse = rng.choice(options)
-        walls[(x, y)][wall] = False
-        walls[(nx, ny)][reverse] = False
-        visited.add((nx, ny))
-        stack.append((nx, ny))
+def rounded_rect_path(x1: float, y1: float, x2: float, y2: float, radius: float, steps: int = 14) -> list[tuple[float, float]]:
+    points: list[tuple[float, float]] = []
 
-    walls[start]["W"] = False
-    walls[goal]["E"] = False
+    def line(start: tuple[float, float], end: tuple[float, float], count: int = 18) -> None:
+        for index in range(count):
+            t = index / count
+            points.append((start[0] + (end[0] - start[0]) * t, start[1] + (end[1] - start[1]) * t))
 
-    queue = [start]
-    parents: dict[tuple[int, int], tuple[int, int] | None] = {start: None}
-    while queue:
-        cell = queue.pop(0)
-        if cell == goal:
-            break
-        x, y = cell
-        for dx, dy, wall, _ in directions:
-            neighbor = (x + dx, y + dy)
-            if 0 <= neighbor[0] < cols and 0 <= neighbor[1] < rows and not walls[cell][wall] and neighbor not in parents:
-                parents[neighbor] = cell
-                queue.append(neighbor)
+    def arc(cx: float, cy: float, start: int, end: int) -> None:
+        for index in range(steps):
+            angle = (start + (end - start) * index / (steps - 1)) * pi / 180
+            points.append((cx + radius * cos(angle), cy + radius * sin(angle)))
 
-    route = []
-    cell: tuple[int, int] | None = goal
-    while cell is not None:
-        route.append(cell)
-        cell = parents[cell]
-    route.reverse()
-    return walls, route
+    line((x1 + radius, y1), (x2 - radius, y1))
+    arc(x2 - radius, y1 + radius, -90, 0)
+    line((x2, y1 + radius), (x2, y2 - radius))
+    arc(x2 - radius, y2 - radius, 0, 90)
+    line((x2 - radius, y2), (x1 + radius, y2))
+    arc(x1 + radius, y2 - radius, 90, 180)
+    line((x1, y2 - radius), (x1, y1 + radius))
+    arc(x1 + radius, y1 + radius, 180, 270)
+    points.append(points[0])
+    return points
 
 
-def maze_frame(frame_index: int, walls: dict[tuple[int, int], dict[str, bool]], route: list[tuple[int, int]]) -> Image.Image:
-    width, height = 460, 126
-    image = Image.new("RGB", (width * SCALE, height * SCALE), COLORS["background"])
+def github_badge_base(width: int = 1000, height: int = 180) -> Image.Image:
+    image = Image.new("RGB", (width * SCALE, height * SCALE), "#090b14")
+    glow = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    glow_draw = ImageDraw.Draw(glow)
+    glow_draw.ellipse((-140 * SCALE, -170 * SCALE, 520 * SCALE, 120 * SCALE), fill=(0, 193, 219, 118))
+    glow_draw.ellipse((680 * SCALE, 55 * SCALE, 1160 * SCALE, 340 * SCALE), fill=(116, 54, 175, 85))
+    glow = glow.filter(ImageFilter.GaussianBlur(62 * SCALE))
+    image = Image.alpha_composite(image.convert("RGBA"), glow)
     draw = ImageDraw.Draw(image)
-    draw.rounded_rectangle((SCALE, SCALE, (width - 1) * SCALE, (height - 1) * SCALE), radius=15 * SCALE, fill=COLORS["panel"], outline=COLORS["stroke"], width=SCALE)
 
-    cell = 11
-    maze_x, maze_y = 17, 21
-    cols, rows = 13, 7
-    wall_color = "#58617c"
-    for y in range(rows):
-        for x in range(cols):
-            x0, y0 = maze_x + x * cell, maze_y + y * cell
-            cell_walls = walls[(x, y)]
-            if cell_walls["N"]:
-                draw.line((x0 * SCALE, y0 * SCALE, (x0 + cell) * SCALE, y0 * SCALE), fill=wall_color, width=2 * SCALE)
-            if cell_walls["W"]:
-                draw.line((x0 * SCALE, y0 * SCALE, x0 * SCALE, (y0 + cell) * SCALE), fill=wall_color, width=2 * SCALE)
-            if y == rows - 1 and cell_walls["S"]:
-                draw.line((x0 * SCALE, (y0 + cell) * SCALE, (x0 + cell) * SCALE, (y0 + cell) * SCALE), fill=wall_color, width=2 * SCALE)
-            if x == cols - 1 and cell_walls["E"]:
-                draw.line(((x0 + cell) * SCALE, y0 * SCALE, (x0 + cell) * SCALE, (y0 + cell) * SCALE), fill=wall_color, width=2 * SCALE)
+    draw.rounded_rectangle((2 * SCALE, 2 * SCALE, (width - 3) * SCALE, (height - 3) * SCALE), radius=25 * SCALE, fill="#0b0e18", outline="#176887", width=2 * SCALE)
+    draw.rounded_rectangle((31 * SCALE, 25 * SCALE, 969 * SCALE, 155 * SCALE), radius=28 * SCALE, fill="#090c15", outline="#19516e", width=2 * SCALE)
 
-    start = route[0]
-    goal = route[-1]
-    start_center = (maze_x + (start[0] + 0.5) * cell, maze_y + (start[1] + 0.5) * cell)
-    goal_center = (maze_x + (goal[0] + 0.5) * cell, maze_y + (goal[1] + 0.5) * cell)
-    draw.ellipse((start_center[0] * SCALE - 3 * SCALE, start_center[1] * SCALE - 3 * SCALE, start_center[0] * SCALE + 3 * SCALE, start_center[1] * SCALE + 3 * SCALE), fill=COLORS["cyan"])
-    draw.ellipse((goal_center[0] * SCALE - 4 * SCALE, goal_center[1] * SCALE - 4 * SCALE, goal_center[0] * SCALE + 4 * SCALE, goal_center[1] * SCALE + 4 * SCALE), fill="#102d27", outline="#6ce0a0", width=SCALE)
+    for offset, color, alpha in ((0, "#3ed8ed", 50), (1, "#a786ff", 35)):
+        y = (height - 5 - offset) * SCALE
+        draw.line((34 * SCALE, y, 966 * SCALE, y), fill=(*tuple(int(color[i:i + 2], 16) for i in (1, 3, 5)), alpha), width=SCALE)
 
-    move_frames = (len(route) - 1) * 3
-    hold_frames = 10
-    if frame_index >= move_frames:
-        position = len(route) - 1
-    else:
-        position = frame_index / 3
-    segment = min(int(position), len(route) - 1)
-    fraction = position - segment if segment < len(route) - 1 else 0
-    trail_points = []
-    for x, y in route[:segment + 1]:
-        trail_points.append(scaled((maze_x + (x + 0.5) * cell, maze_y + (y + 0.5) * cell)))
-    if segment < len(route) - 1:
-        x1, y1 = route[segment]
-        x2, y2 = route[segment + 1]
-        trail_points.append(scaled((maze_x + (x1 + 0.5 + (x2 - x1) * fraction) * cell, maze_y + (y1 + 0.5 + (y2 - y1) * fraction) * cell)))
-    if len(trail_points) > 1:
-        draw.line(trail_points, fill="#26606c", width=3 * SCALE, joint="curve")
+    pill = (380, 60, 620, 120)
+    draw.rounded_rectangle(tuple(value * SCALE for value in pill), radius=30 * SCALE, fill="#0a0d16", outline="#315d72", width=2 * SCALE)
+    draw.ellipse((402 * SCALE, 73 * SCALE, 436 * SCALE, 107 * SCALE), fill="#303640")
+    draw.text((419 * SCALE, 89 * SCALE), "G", font=font(15, True), fill="#f5f7fa", anchor="mm")
+    draw.text((452 * SCALE, 77 * SCALE), "GitHub", font=font(13, True), fill="#69dffa")
+    draw.text((452 * SCALE, 97 * SCALE), "@FallAbigail", font=font(13, True), fill="#69dffa")
+    draw.text((968 * SCALE, 137 * SCALE), "github.com", font=font(8, True), fill="#7187aa", anchor="ra")
+    return image
 
-    if segment < len(route) - 1:
-        x1, y1 = route[segment]
-        x2, y2 = route[segment + 1]
-        dot = (maze_x + (x1 + 0.5 + (x2 - x1) * fraction) * cell, maze_y + (y1 + 0.5 + (y2 - y1) * fraction) * cell)
-    else:
-        x, y = route[-1]
-        dot = (maze_x + (x + 0.5) * cell, maze_y + (y + 0.5) * cell)
+
+def github_badge_frame(frame_index: int, frame_count: int = 48) -> Image.Image:
+    width, height = 1000, 180
+    image = github_badge_base(width, height)
+    pill_path = rounded_rect_path(380, 60, 620, 120, 30)
+    segment_length = max(12, round(len(pill_path) * 0.13))
+    start = round(frame_index / frame_count * len(pill_path))
+    points = [pill_path[(start + offset) % len(pill_path)] for offset in range(segment_length + 1)]
+    high_res_points = [scaled(point) for point in points]
 
     glow = Image.new("RGBA", image.size, (0, 0, 0, 0))
     glow_draw = ImageDraw.Draw(glow)
-    dx, dy = scaled(dot)
-    glow_draw.ellipse((dx - 10 * SCALE, dy - 10 * SCALE, dx + 10 * SCALE, dy + 10 * SCALE), fill=(117, 231, 255, 150))
-    glow = glow.filter(ImageFilter.GaussianBlur(5 * SCALE))
-    image = Image.alpha_composite(image.convert("RGBA"), glow)
+    glow_draw.line(high_res_points, fill=(77, 207, 255, 200), width=8 * SCALE, joint="curve")
+    glow = glow.filter(ImageFilter.GaussianBlur(7 * SCALE))
+    image = Image.alpha_composite(image, glow)
     draw = ImageDraw.Draw(image)
-    draw.ellipse((dx - 3 * SCALE, dy - 3 * SCALE, dx + 3 * SCALE, dy + 3 * SCALE), fill="#e8fbff")
-    draw.ellipse((dx - 2 * SCALE, dy - 2 * SCALE, dx + 2 * SCALE, dy + 2 * SCALE), fill=COLORS["cyan"])
 
-    draw.text(scaled((191, 34)), "BLINDMAZE · ARCADE", font=font(9, True), fill=COLORS["maze"])
-    draw.text(scaled((191, 58)), "Find the exit.", font=font(15, True), fill=COLORS["text"])
-    draw.text(scaled((191, 79)), "Follow the light through the maze.", font=font(8), fill=COLORS["subtext"])
-    draw.rounded_rectangle((191 * SCALE, 92 * SCALE, 351 * SCALE, 111 * SCALE), radius=9 * SCALE, fill="#17192c", outline="#393651", width=SCALE)
-    draw.text(scaled((202, 97)), "A SMALL GAME EASTER EGG", font=font(7, True), fill=COLORS["muted"])
+    for index in range(len(high_res_points) - 1):
+        progress = index / max(len(high_res_points) - 2, 1)
+        start_color = (101, 231, 255)
+        end_color = (177, 132, 255)
+        color = tuple(round(a + (b - a) * progress) for a, b in zip(start_color, end_color))
+        draw.line((high_res_points[index], high_res_points[index + 1]), fill=color, width=3 * SCALE)
 
     return image.convert("RGB").resize((width, height), Image.Resampling.LANCZOS)
 
 
 def main() -> None:
     ASSETS.mkdir(parents=True, exist_ok=True)
+    (ASSETS / "blindmaze-easter-egg.gif").unlink(missing_ok=True)
     constellation = [network_frame(index) for index in range(60)]
     save_gif(constellation, ASSETS / "project-constellation.gif", 100)
 
-    maze_walls, route = create_maze()
-    move_frames = (len(route) - 1) * 3
-    maze = [maze_frame(index, maze_walls, route) for index in range(move_frames + 10)]
-    save_gif(maze, ASSETS / "blindmaze-easter-egg.gif", 100)
-    print(f"Created project constellation ({len(constellation)} frames) and BlindMaze route ({len(maze)} frames).")
+    github_badge = [github_badge_frame(index) for index in range(48)]
+    save_gif(github_badge, ASSETS / "github-profile-badge.gif", 95)
+    print(f"Created project constellation ({len(constellation)} frames) and GitHub badge ({len(github_badge)} frames).")
 
 
 if __name__ == "__main__":

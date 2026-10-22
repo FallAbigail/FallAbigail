@@ -40,6 +40,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md assets/profile.svg assets/activity.svg assets/languages.svg assets/projects/ assets/*.gif scripts/create-profile-animations.py
+          git add README.md assets/ scripts/create-profile-animations.py scripts/update-profile.mjs
           git diff --cached --quiet || git commit -m "Update profile repository data"
           git push
