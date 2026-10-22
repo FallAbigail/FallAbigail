@@ -176,7 +176,30 @@ function truncate(value, maxLength) {
   return `${text.slice(0, maxLength - 1).trimEnd()}…`;
 }
 
-function profileSvg(profile, repositories, languages, activity) {
+async function avatarAsDataUrl(avatarUrl) {
+  const source = new URL(avatarUrl);
+  if (source.hostname !== "avatars.githubusercontent.com") {
+    throw new Error(`Unexpected GitHub avatar host: ${source.hostname}`);
+  }
+  source.searchParams.set("size", "144");
+  const response = await fetch(source);
+  if (!response.ok) {
+    throw new Error(`Could not fetch GitHub profile photo: HTTP ${response.status}`);
+  }
+
+  const contentType = (response.headers.get("content-type") ?? "").split(";")[0].toLowerCase();
+  if (!["image/png", "image/jpeg", "image/webp", "image/gif"].includes(contentType)) {
+    throw new Error(`Unexpected GitHub avatar content type: ${contentType || "missing"}`);
+  }
+  const image = Buffer.from(await response.arrayBuffer());
+  if (!image.length || image.length > 2_000_000) {
+    throw new Error(`GitHub profile photo has an unexpected size: ${image.length} bytes`);
+  }
+
+  return `data:${contentType};base64,${image.toString("base64")}`;
+}
+
+function profileSvg(profile, repositories, languages, activity, avatarDataUrl) {
   const width = 1000;
   const padding = 28;
   const gap = 14;
@@ -315,6 +338,7 @@ function profileSvg(profile, repositories, languages, activity) {
     <radialGradient id="violet-glow"><stop offset="0" stop-color="#9a55ff" stop-opacity=".24"/><stop offset="1" stop-color="#9a55ff" stop-opacity="0"/></radialGradient>
     <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M 32 0 L 0 0 0 32" fill="none" stroke="#aaa7ff" stroke-opacity=".035" stroke-width=".7"/></pattern>
     <clipPath id="hero-clip"><rect x="${padding}" y="${heroY}" width="${panelWidth}" height="${heroHeight}" rx="20"/></clipPath>
+    <clipPath id="avatar-clip"><circle cx="${padding + 50}" cy="${heroY + 48}" r="13.5"/></clipPath>
     <clipPath id="language-bar-clip"><rect x="${languageBarX}" y="${languagesY + 54}" width="${languageBarWidth}" height="12" rx="6"/></clipPath>
   </defs>
   <rect width="${width}" height="${height}" fill="url(#canvas)" rx="24" />
@@ -331,8 +355,8 @@ function profileSvg(profile, repositories, languages, activity) {
     <path d="M ${padding + 24} ${heroY + 22} h 18 M ${padding + 24} ${heroY + 22} v 18 M ${width - padding - 24} ${heroY + 22} h -18 M ${width - padding - 24} ${heroY + 22} v 18 M ${padding + 24} ${heroY + heroHeight - 22} h 18 M ${padding + 24} ${heroY + heroHeight - 22} v -18 M ${width - padding - 24} ${heroY + heroHeight - 22} h -18 M ${width - padding - 24} ${heroY + heroHeight - 22} v -18" fill="none" stroke="#8ae9ff" stroke-opacity=".55" stroke-width="1.4" />
   </g>
   <rect x="${padding + .5}" y="${heroY + .5}" width="${panelWidth - 1}" height="${heroHeight - 1}" rx="20" fill="none" stroke="#35304f" />
-  <circle cx="${padding + 50}" cy="${heroY + 48}" r="15" fill="#101421" stroke="#6be5fa" stroke-opacity=".62" />
-  <text x="${padding + 50}" y="${heroY + 52}" text-anchor="middle" fill="#a0f1ff" font-size="9" font-weight="800" letter-spacing="1">FA</text>
+  <image href="${avatarDataUrl}" x="${padding + 36.5}" y="${heroY + 34.5}" width="27" height="27" preserveAspectRatio="xMidYMid slice" clip-path="url(#avatar-clip)" />
+  <circle cx="${padding + 50}" cy="${heroY + 48}" r="15" fill="none" stroke="#6be5fa" stroke-opacity=".82" />
   <text x="${padding + 76}" y="${heroY + 45}" class="panel-kicker">GITHUB PROFILE</text>
   <text x="${padding + 76}" y="${heroY + 60}" fill="#babbd4" font-size="9" letter-spacing="1">@${escapeXml(profile.login)}</text>
   <rect x="${width - padding - 170}" y="${heroY + 35}" width="142" height="26" rx="13" fill="#121322" stroke="#4b426e" />
@@ -542,11 +566,10 @@ async function main() {
     .sort(([, left], [, right]) => right - left)
     .map(([name, bytes]) => ({ name, bytes, percent: (bytes / totalBytes) * 100 }));
   const projects = featuredRepositories(repositories);
-  const avatarUrl = `https://github.com/${owner}.png?size=144`;
+  const avatarDataUrl = await avatarAsDataUrl(profile.avatar_url);
 
   const readme = [
     "<!-- Generated from the public GitHub API by scripts/update-profile.mjs. -->",
-    `<p align="center"><a href="https://github.com/${owner}"><img src="${avatarUrl}" width="112" alt="Current GitHub profile photo for ${owner}" /></a></p>`,
     `<p align="center"><a href="https://github.com/${owner}?tab=repositories"><img src="./assets/profile.svg" alt="${escapeXml(profile.name || owner)} GitHub statistics, languages, and contribution activity" /></a></p>`,
     '<h2 align="center">Featured projects</h2>',
     projectTableMarkup(projects),
@@ -559,7 +582,7 @@ async function main() {
   await mkdir(assetsDirectory, { recursive: true });
   await mkdir(projectAssetsDirectory, { recursive: true });
   await writeFile(new URL("./README.md", root), readme, "utf8");
-  await writeFile(new URL("./assets/profile.svg", root), profileSvg(profile, repositories, languages, activity), "utf8");
+  await writeFile(new URL("./assets/profile.svg", root), profileSvg(profile, repositories, languages, activity, avatarDataUrl), "utf8");
   await writeFile(new URL("./assets/activity.svg", root), activitySvg(activity.user.contributionsCollection), "utf8");
   await writeFile(new URL("./assets/languages.svg", root), languageSvg(languages), "utf8");
   const projectFiles = new Set();
