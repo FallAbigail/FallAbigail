@@ -170,6 +170,257 @@ function activitySvg(activity) {
 </svg>`;
 }
 
+function truncate(value, maxLength) {
+  const text = String(value ?? "").replaceAll(/\s+/g, " ").trim();
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, maxLength - 1).trimEnd()}…`;
+}
+
+function profileSvg(profile, repositories, languages, activity) {
+  const width = 1000;
+  const padding = 28;
+  const gap = 14;
+  const panelWidth = width - padding * 2;
+  const topLanguages = languages.slice(0, 6);
+  const featuredOrder = [
+    "CanteenOS",
+    "MedikaFlow",
+    "LibSync",
+    "blindmaze-game",
+    "smk-bppi-baleendah",
+  ];
+  const featuredRank = new Map(featuredOrder.map((name, index) => [name.toLowerCase(), index]));
+  const projects = [...repositories]
+    .sort((left, right) => {
+      const leftRank = featuredRank.get(left.name.toLowerCase()) ?? Number.MAX_SAFE_INTEGER;
+      const rightRank = featuredRank.get(right.name.toLowerCase()) ?? Number.MAX_SAFE_INTEGER;
+      return leftRank - rightRank || right.updated_at.localeCompare(left.updated_at);
+    })
+    .slice(0, 6);
+  const stats = [
+    { value: repositories.length, label: "PUBLIC REPOS", color: "#75e7ff" },
+    { value: repositories.reduce((total, repo) => total + repo.stargazers_count, 0), label: "STARS", color: "#ffd36d" },
+    { value: repositories.reduce((total, repo) => total + repo.forks_count, 0), label: "FORKS", color: "#c6a5ff" },
+    { value: activity.user.contributionsCollection.totalCommitContributions, label: "COMMITS · 12 MO", color: "#ff8fca" },
+  ];
+  const contributionCalendar = activity.user.contributionsCollection.contributionCalendar;
+  const totalContributions = contributionCalendar.totalContributions;
+  const weeks = contributionCalendar.weeks;
+
+  let y = 20;
+  const heroY = y;
+  const heroHeight = 250;
+  y += heroHeight + gap;
+
+  const toolkitY = y;
+  const toolkitHeight = 78;
+  y += toolkitHeight + gap;
+
+  const statsY = y;
+  const statsHeight = 116;
+  y += statsHeight + gap;
+
+  const languagesY = y;
+  const languagesHeight = 174;
+  y += languagesHeight + gap;
+
+  const activityY = y;
+  const activityHeight = 190;
+  y += activityHeight + gap;
+
+  const projectsY = y;
+  const projectRows = Math.ceil(projects.length / 2);
+  const projectCardHeight = 100;
+  const projectRowGap = 10;
+  const projectsHeight = 52 + projectRows * projectCardHeight + Math.max(0, projectRows - 1) * projectRowGap + 18;
+  y += projectsHeight + 22;
+  const footerY = y;
+  const height = footerY + 28;
+
+  const toolkitPills = (() => {
+    const items = topLanguages.length ? topLanguages : [{ name: "Open source", percent: 0 }];
+    const pillWidths = items.map(({ name }) => Math.max(92, name.length * 8 + 32));
+    const totalWidth = pillWidths.reduce((sum, pillWidth) => sum + pillWidth, 0) + (items.length - 1) * 9;
+    let x = (width - totalWidth) / 2;
+    return items.map((language, index) => {
+      const pillWidth = pillWidths[index];
+      const color = languageColor(language.name);
+      const pill = `<g>
+        <rect x="${x}" y="${toolkitY + 30}" width="${pillWidth}" height="30" rx="15" fill="#10101d" stroke="${color}" stroke-opacity=".38" />
+        <circle cx="${x + 16}" cy="${toolkitY + 45}" r="3.5" fill="${color}" />
+        <text x="${x + 27}" y="${toolkitY + 49}" class="pill-label">${escapeXml(language.name)}</text>
+      </g>`;
+      x += pillWidth + 9;
+      return pill;
+    }).join("");
+  })();
+
+  const statColumns = stats.map((stat, index) => {
+    const columnWidth = panelWidth / stats.length;
+    const center = padding + columnWidth * index + columnWidth / 2;
+    const divider = index ? `<line x1="${padding + columnWidth * index}" y1="${statsY + 29}" x2="${padding + columnWidth * index}" y2="${statsY + 87}" class="divider" />` : "";
+    return `${divider}
+      <text x="${center}" y="${statsY + 63}" text-anchor="middle" class="stat-value">${escapeXml(stat.value)}</text>
+      <text x="${center}" y="${statsY + 83}" text-anchor="middle" class="stat-label" fill="${stat.color}">${escapeXml(stat.label)}</text>`;
+  }).join("");
+
+  const languageBarWidth = panelWidth - 64;
+  const languageBarX = padding + 32;
+  const totalLanguageBytes = topLanguages.reduce((total, language) => total + language.bytes, 0) || 1;
+  let languageOffset = languageBarX;
+  const languageSegments = topLanguages.map((language) => {
+    const segmentWidth = languageBarWidth * language.bytes / totalLanguageBytes;
+    const segment = `<rect x="${languageOffset.toFixed(2)}" y="${languagesY + 54}" width="${Math.max(segmentWidth, 2).toFixed(2)}" height="12" fill="${languageColor(language.name)}" />`;
+    languageOffset += segmentWidth;
+    return segment;
+  }).join("");
+  const languageLegend = topLanguages.map((language, index) => {
+    const column = index % 3;
+    const row = Math.floor(index / 3);
+    const x = languageBarX + column * (languageBarWidth / 3);
+    const itemY = languagesY + 98 + row * 28;
+    return `<g>
+      <circle cx="${x + 5}" cy="${itemY - 4}" r="4" fill="${languageColor(language.name)}" />
+      <text x="${x + 17}" y="${itemY}" class="body-label">${escapeXml(language.name)}</text>
+      <text x="${x + languageBarWidth / 3 - 12}" y="${itemY}" class="body-value" text-anchor="end">${formatPercent(language.percent)}</text>
+    </g>`;
+  }).join("");
+
+  const cell = 11;
+  const cellGap = 3;
+  const gridWidth = weeks.length * (cell + cellGap) - cellGap;
+  const activityGridX = padding + (panelWidth - gridWidth) / 2;
+  const activityGridY = activityY + 77;
+  const activityCells = weeks.map((week, weekIndex) => week.contributionDays.map((day, dayIndex) => {
+    const x = activityGridX + weekIndex * (cell + cellGap);
+    const cellY = activityGridY + dayIndex * (cell + cellGap);
+    return `<rect class="activity-level-${activityLevel(day)}" x="${x.toFixed(2)}" y="${cellY}" width="${cell}" height="${cell}" rx="2"><title>${escapeXml(day.date)}: ${day.contributionCount} contributions</title></rect>`;
+  }).join("")).join("");
+
+  const projectGap = 12;
+  const projectCardWidth = (panelWidth - projectGap) / 2;
+  const projectCards = projects.map((repo, index) => {
+    const row = Math.floor(index / 2);
+    const isLastCentered = projects.length % 2 === 1 && index === projects.length - 1;
+    const column = isLastCentered ? 0.5 : index % 2;
+    const cardWidth = isLastCentered ? projectCardWidth : projectCardWidth;
+    const x = padding + column * (projectCardWidth + projectGap);
+    const cardY = projectsY + 40 + row * (projectCardHeight + projectRowGap);
+    const language = repo.language || "Project";
+    const languageFill = repo.language ? languageColor(repo.language) : "#75e7ff";
+    return `<g>
+      <rect x="${x}" y="${cardY}" width="${cardWidth}" height="${projectCardHeight}" rx="13" class="project-card" />
+      <rect x="${x}" y="${cardY + 17}" width="3" height="34" rx="1.5" fill="${languageFill}" />
+      <text x="${x + 18}" y="${cardY + 31}" class="project-name">${escapeXml(truncate(repo.name, 32))}</text>
+      <text x="${x + 18}" y="${cardY + 52}" class="project-description">${escapeXml(truncate(repo.description || "Public project", 60))}</text>
+      <circle cx="${x + 22}" cy="${cardY + 76}" r="3.5" fill="${languageFill}" />
+      <text x="${x + 32}" y="${cardY + 80}" class="project-meta">${escapeXml(language)}</text>
+      <text x="${x + cardWidth - 16}" y="${cardY + 80}" text-anchor="end" class="project-meta">★ ${repo.stargazers_count}   ·   Forks ${repo.forks_count}</text>
+    </g>`;
+  }).join("");
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="title desc">
+  <title id="title">${escapeXml(profile.name || profile.login)} — GitHub profile</title>
+  <desc id="desc">An animated developer profile for ${escapeXml(profile.login)} with public repository statistics, programming languages, contribution activity, and featured projects.</desc>
+  <style>
+    text { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .panel { fill: #0b0b16; stroke: #25233b; stroke-width: 1; }
+    .panel-title { fill: #f1f2ff; font-size: 13px; font-weight: 700; letter-spacing: 2px; }
+    .panel-kicker { fill: #8586a8; font-size: 9px; letter-spacing: 1.8px; }
+    .divider { stroke: #302d49; stroke-width: 1; stroke-dasharray: 3 4; }
+    .pill-label { fill: #e4e6fb; font-size: 10px; font-weight: 600; }
+    .stat-value { fill: #ffffff; font-size: 27px; font-weight: 800; }
+    .stat-label { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; }
+    .body-label { fill: #d9d9ee; font-size: 11px; }
+    .body-value { fill: #9293ae; font-size: 10px; font-variant-numeric: tabular-nums; }
+    .project-card { fill: #10101c; stroke: #292741; stroke-width: 1; }
+    .project-name { fill: #f1f2ff; font-size: 13px; font-weight: 700; }
+    .project-description { fill: #a2a3bd; font-size: 10px; }
+    .project-meta { fill: #81829f; font-size: 9px; }
+    .activity-level-0 { fill: #171725; stroke: #27263c; stroke-width: .5; }
+    .activity-level-1 { fill: #173e47; }
+    .activity-level-2 { fill: #187985; }
+    .activity-level-3 { fill: #31b6bc; }
+    .activity-level-4 { fill: #9be8e7; }
+    @keyframes float { 0%, 100% { transform: translate(0, 0); opacity: .58; } 50% { transform: translate(28px, -12px); opacity: .92; } }
+    @keyframes float-alt { 0%, 100% { transform: translate(0, 0); opacity: .46; } 50% { transform: translate(-22px, 14px); opacity: .82; } }
+    @keyframes scan { 0% { transform: translateX(-1050px); opacity: 0; } 15% { opacity: .8; } 85% { opacity: .8; } 100% { transform: translateX(1050px); opacity: 0; } }
+    @keyframes pulse { 0%, 100% { opacity: .14; } 50% { opacity: .38; } }
+    .glow-a { animation: float 11s ease-in-out infinite; }
+    .glow-b { animation: float-alt 13s ease-in-out infinite .8s; }
+    .scanline { animation: scan 9s linear infinite; }
+    .pulse-line { animation: pulse 5s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }
+  </style>
+  <defs>
+    <linearGradient id="canvas" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#090916"/><stop offset=".55" stop-color="#080811"/><stop offset="1" stop-color="#10101b"/></linearGradient>
+    <linearGradient id="hero" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#111126"/><stop offset=".52" stop-color="#0b0d1a"/><stop offset="1" stop-color="#11101f"/></linearGradient>
+    <linearGradient id="name-gradient" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff"/><stop offset=".48" stop-color="#8cecff"/><stop offset=".78" stop-color="#d1a8ff"/><stop offset="1" stop-color="#ff9dce"/></linearGradient>
+    <linearGradient id="scan-gradient" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#74e7ff" stop-opacity="0"/><stop offset=".5" stop-color="#74e7ff" stop-opacity=".26"/><stop offset="1" stop-color="#d19bff" stop-opacity="0"/></linearGradient>
+    <radialGradient id="cyan-glow"><stop offset="0" stop-color="#00d9ee" stop-opacity=".22"/><stop offset="1" stop-color="#00d9ee" stop-opacity="0"/></radialGradient>
+    <radialGradient id="violet-glow"><stop offset="0" stop-color="#9a55ff" stop-opacity=".24"/><stop offset="1" stop-color="#9a55ff" stop-opacity="0"/></radialGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M 32 0 L 0 0 0 32" fill="none" stroke="#aaa7ff" stroke-opacity=".035" stroke-width=".7"/></pattern>
+    <clipPath id="hero-clip"><rect x="${padding}" y="${heroY}" width="${panelWidth}" height="${heroHeight}" rx="20"/></clipPath>
+    <clipPath id="language-bar-clip"><rect x="${languageBarX}" y="${languagesY + 54}" width="${languageBarWidth}" height="12" rx="6"/></clipPath>
+  </defs>
+  <rect width="${width}" height="${height}" fill="url(#canvas)" rx="24" />
+  <rect width="${width}" height="${height}" fill="url(#grid)" rx="24" />
+
+  <g clip-path="url(#hero-clip)">
+    <rect x="${padding}" y="${heroY}" width="${panelWidth}" height="${heroHeight}" rx="20" fill="url(#hero)" />
+    <ellipse class="glow-a" cx="${padding + 190}" cy="${heroY + 120}" rx="240" ry="130" fill="url(#violet-glow)" />
+    <ellipse class="glow-b" cx="${width - 170}" cy="${heroY + 170}" rx="270" ry="150" fill="url(#cyan-glow)" />
+    <circle cx="${width / 2}" cy="${heroY + 128}" r="114" fill="none" stroke="#b8a0ff" stroke-opacity=".09" />
+    <circle cx="${width / 2}" cy="${heroY + 128}" r="150" fill="none" stroke="#6fe6ff" stroke-opacity=".07" />
+    <rect class="scanline" x="0" y="${heroY + 112}" width="280" height="30" fill="url(#scan-gradient)" />
+    <line class="pulse-line" x1="${padding + 210}" y1="${heroY + 188}" x2="${width - padding - 210}" y2="${heroY + 188}" stroke="#82e9ff" stroke-opacity=".5" />
+    <path d="M ${padding + 24} ${heroY + 22} h 18 M ${padding + 24} ${heroY + 22} v 18 M ${width - padding - 24} ${heroY + 22} h -18 M ${width - padding - 24} ${heroY + 22} v 18 M ${padding + 24} ${heroY + heroHeight - 22} h 18 M ${padding + 24} ${heroY + heroHeight - 22} v -18 M ${width - padding - 24} ${heroY + heroHeight - 22} h -18 M ${width - padding - 24} ${heroY + heroHeight - 22} v -18" fill="none" stroke="#8ae9ff" stroke-opacity=".55" stroke-width="1.4" />
+  </g>
+  <rect x="${padding + .5}" y="${heroY + .5}" width="${panelWidth - 1}" height="${heroHeight - 1}" rx="20" fill="none" stroke="#35304f" />
+  <circle cx="${padding + 50}" cy="${heroY + 48}" r="15" fill="#101421" stroke="#6be5fa" stroke-opacity=".62" />
+  <text x="${padding + 50}" y="${heroY + 52}" text-anchor="middle" fill="#a0f1ff" font-size="9" font-weight="800" letter-spacing="1">FA</text>
+  <text x="${padding + 76}" y="${heroY + 45}" class="panel-kicker">GITHUB PROFILE</text>
+  <text x="${padding + 76}" y="${heroY + 60}" fill="#babbd4" font-size="9" letter-spacing="1">@${escapeXml(profile.login)}</text>
+  <rect x="${width - padding - 170}" y="${heroY + 35}" width="142" height="26" rx="13" fill="#121322" stroke="#4b426e" />
+  <circle cx="${width - padding - 152}" cy="${heroY + 48}" r="3" fill="#8cecff" />
+  <text x="${width - padding - 141}" y="${heroY + 52}" fill="#c5c6de" font-size="9" font-weight="700" letter-spacing="1">PUBLIC PROJECTS</text>
+  <text x="${width / 2}" y="${heroY + 126}" text-anchor="middle" fill="url(#name-gradient)" font-size="48" font-weight="900" letter-spacing="7">${escapeXml(profile.name || profile.login)}</text>
+  <text x="${width / 2}" y="${heroY + 157}" text-anchor="middle" fill="#d9d5f1" font-size="11" font-weight="700" letter-spacing="3">SOFTWARE · TOOLS · INTERACTIVE PROJECTS</text>
+  <text x="${width / 2}" y="${heroY + 215}" text-anchor="middle" fill="#8f90ac" font-size="10" letter-spacing="1.5">BUILDING AND SHARING PROJECTS ON GITHUB</text>
+
+  <text x="${padding + 2}" y="${toolkitY + 13}" class="panel-kicker">TOOLKIT</text>
+  <line x1="${padding + 77}" y1="${toolkitY + 10}" x2="${width - padding}" y2="${toolkitY + 10}" stroke="#292741" />
+  ${toolkitPills}
+
+  <rect class="panel" x="${padding}" y="${statsY}" width="${panelWidth}" height="${statsHeight}" rx="16" />
+  <text x="${padding + 22}" y="${statsY + 23}" class="panel-kicker">PROFILE METRICS</text>
+  ${statColumns}
+
+  <rect class="panel" x="${padding}" y="${languagesY}" width="${panelWidth}" height="${languagesHeight}" rx="16" />
+  <text x="${padding + 22}" y="${languagesY + 27}" class="panel-title">LANGUAGE DISTRIBUTION</text>
+  <text x="${width - padding - 22}" y="${languagesY + 27}" text-anchor="end" class="panel-kicker">PUBLIC REPOSITORIES</text>
+  <rect x="${languageBarX}" y="${languagesY + 54}" width="${languageBarWidth}" height="12" rx="6" fill="#191927" />
+  <g clip-path="url(#language-bar-clip)">${languageSegments}</g>
+  ${languageLegend}
+
+  <rect class="panel" x="${padding}" y="${activityY}" width="${panelWidth}" height="${activityHeight}" rx="16" />
+  <text x="${padding + 22}" y="${activityY + 28}" class="panel-title">ACTIVITY PULSE</text>
+  <text x="${width - padding - 22}" y="${activityY + 28}" text-anchor="end" class="panel-kicker">${totalContributions} CONTRIBUTIONS · LAST 12 MONTHS</text>
+  <text x="${activityGridX}" y="${activityY + 61}" class="panel-kicker">LESS</text>
+  <text x="${activityGridX + gridWidth}" y="${activityY + 61}" text-anchor="end" class="panel-kicker">MORE</text>
+  <g>${activityCells}</g>
+
+  <rect class="panel" x="${padding}" y="${projectsY}" width="${panelWidth}" height="${projectsHeight}" rx="16" />
+  <text x="${padding + 22}" y="${projectsY + 27}" class="panel-title">FEATURED PROJECTS</text>
+  <text x="${width - padding - 22}" y="${projectsY + 27}" text-anchor="end" class="panel-kicker">${projects.length} PUBLIC REPOSITORIES</text>
+  ${projectCards}
+
+  <line x1="${padding}" y1="${footerY - 8}" x2="${width - padding}" y2="${footerY - 8}" stroke="#292741" />
+  <text x="${padding + 2}" y="${footerY + 9}" class="panel-kicker">FALLABIGAL · GITHUB PROFILE</text>
+  <text x="${width - padding - 2}" y="${footerY + 9}" text-anchor="end" class="panel-kicker">DATA REFRESHED AUTOMATICALLY</text>
+</svg>`;
+}
+
 function escapeXml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -274,24 +525,15 @@ async function main() {
 
   const readme = [
     "<!-- Generated from the public GitHub API by scripts/update-profile.mjs. -->",
-    '<div align="center">',
-    "  <h1>FallAbigail</h1>",
-    '  <p><a href="https://github.com/FallAbigal">@FallAbigal</a></p>',
-    "</div>",
-    "",
-    activityTable(activity),
-    "## Languages",
-    "",
-    '<img src="./assets/languages.svg" alt="Languages used across public repositories" />',
-    "",
-    statsTable(repositories, profile),
-    '<p align="center"><a href="https://github.com/FallAbigal?tab=repositories">View all repositories →</a></p>',
+    '<p align="center"><img src="./assets/profile.svg" alt="FallAbigail GitHub profile with public repository stats, programming languages, contribution activity, and featured projects" /></p>',
+    '<p align="center"><a href="https://github.com/FallAbigal?tab=repositories">Explore all repositories →</a></p>',
     "",
   ].join("\n");
 
   const assetsDirectory = new URL("./assets/", root);
   await mkdir(assetsDirectory, { recursive: true });
   await writeFile(new URL("./README.md", root), readme, "utf8");
+  await writeFile(new URL("./assets/profile.svg", root), profileSvg(profile, repositories, languages, activity), "utf8");
   await writeFile(new URL("./assets/activity.svg", root), activitySvg(activity.user.contributionsCollection), "utf8");
   await writeFile(new URL("./assets/languages.svg", root), languageSvg(languages), "utf8");
   console.log(`Updated ${repositories.length} repositories, ${languages.length} languages, and ${activity.user.contributionsCollection.contributionCalendar.totalContributions} contributions.`);
