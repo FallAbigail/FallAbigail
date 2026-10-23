@@ -2,7 +2,7 @@
   <title id="title">FallAbigail — GitHub profile</title>
   <desc id="desc">An animated developer profile for FallAbigail with public repository statistics, programming languages, and contribution activity.</desc>
   <style>
-    text { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    text { font-family: Inter, sans-serif; }
     .panel { fill: #0b0b16; stroke: #25233b; stroke-width: 1; }
     .panel-title { fill: #f1f2ff; font-size: 13px; font-weight: 700; letter-spacing: 2px; }
     .panel-kicker { fill: #8586a8; font-size: 9px; letter-spacing: 1.8px; }

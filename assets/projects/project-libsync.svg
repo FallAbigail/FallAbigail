@@ -6,7 +6,7 @@
     <linearGradient id="accent-line" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#777bb4"/><stop offset="1" stop-color="#777bb4" stop-opacity=".2"/></linearGradient>
   </defs>
   <style>
-    text { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    text { font-family: Inter, sans-serif; }
     .name { fill: #f3f3ff; font-size: 15px; font-weight: 700; }
     .description { fill: #a5a5bf; font-size: 11px; }
     .meta { fill: #8586a2; font-size: 10px; }

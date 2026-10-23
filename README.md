@@ -1,7 +1,7 @@
 <!-- Generated from the public GitHub API by scripts/update-profile.mjs. -->
 <p align="center"><a href="https://github.com/FallAbigail?tab=repositories"><img src="./assets/profile.svg" alt="FallAbigail GitHub statistics, languages, and contribution activity" /></a></p>
-<p align="center"><a href="https://github.com/FallAbigail?tab=repositories"><img src="./assets/project-constellation.gif" width="900" alt="Animated project map connecting FallAbigail to CanteenOS, LibSync, MedikaFlow, BlindMaze, and the SMK BPPI website" /></a></p>
-<h2 align="center">Featured projects</h2>
-<table align="center" border="0"><tbody><tr><td align="center"><a href="https://github.com/FallAbigail/CanteenOS"><img src="./assets/projects/project-canteenos.svg" width="460" alt="Open CanteenOS on GitHub" /></a></td><td align="center"><a href="https://github.com/FallAbigail/MedikaFlow"><img src="./assets/projects/project-medikaflow.svg" width="460" alt="Open MedikaFlow on GitHub" /></a></td></tr><tr><td align="center"><a href="https://github.com/FallAbigail/LibSync"><img src="./assets/projects/project-libsync.svg" width="460" alt="Open LibSync on GitHub" /></a></td><td align="center"><a href="https://github.com/FallAbigail/blindmaze-game"><img src="./assets/projects/project-blindmaze-game.svg" width="460" alt="Open blindmaze-game on GitHub" /></a></td></tr><tr><td colspan="2" align="center"><a href="https://github.com/FallAbigail/smk-bppi-baleendah"><img src="./assets/projects/project-smk-bppi-baleendah.svg" width="460" alt="Open smk-bppi-baleendah on GitHub" /></a></td></tr></tbody></table>
-<p align="center"><img src="./assets/context.svg" width="880" alt="GitHub context and contribution metrics for FallAbigail" /></p>
+<p align="center"><img src="./assets/github-activity.svg" width="880" alt="GitHub activity metrics for FallAbigail" /></p>
 <h2 align="center">Make something cool</h2>
+<p align="center"><a href="https://github.com/FallAbigail"><img src="./assets/github-profile-badge.gif" width="900" alt="GitHub profile badge for @FallAbigail" /></a></p>
+<p align="center"><a href="https://github.com/FallAbigail">GitHub</a></p>
+<p align="center"><a href="https://github.com/FallAbigail?tab=repositories">Explore all repositories →</a></p>

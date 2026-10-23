@@ -3,8 +3,8 @@
   <desc id="desc">Contribution activity for FallAbigail across the last 12 months.</desc>
   <style>
     .card { fill: #ffffff; stroke: #e2e8f0; }
-    .title { fill: #0f172a; font: 700 19px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-    .subtitle, .legend-label { fill: #64748b; font: 13px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    .title { fill: #0f172a; font: 700 19px Inter,sans-serif; }
+    .subtitle, .legend-label { fill: #64748b; font: 13px Inter,sans-serif; }
     .level-0 { fill: #ebedf0; }
     .level-1 { fill: #9be9a8; }
     .level-2 { fill: #40c463; }

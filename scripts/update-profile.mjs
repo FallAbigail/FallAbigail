@@ -91,8 +91,8 @@ function languageSvg(languages) {
   <desc id="desc">${languages.length} languages detected from the public repositories of ${owner}.</desc>
   <style>
     .card { fill: #ffffff; stroke: #e2e8f0; }
-    .title { fill: #0f172a; font: 700 19px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-    .subtitle, .label, .value { fill: #64748b; font: 13px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    .title { fill: #0f172a; font: 700 19px Inter,sans-serif; }
+    .subtitle, .label, .value { fill: #64748b; font: 13px Inter,sans-serif; }
     .value { font-variant-numeric: tabular-nums; }
     @media (prefers-color-scheme: dark) {
       .card { fill: #161b22; stroke: #30363d; }
@@ -142,8 +142,8 @@ function activitySvg(activity) {
   <desc id="desc">Contribution activity for ${owner} across the last 12 months.</desc>
   <style>
     .card { fill: #ffffff; stroke: #e2e8f0; }
-    .title { fill: #0f172a; font: 700 19px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-    .subtitle, .legend-label { fill: #64748b; font: 13px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    .title { fill: #0f172a; font: 700 19px Inter,sans-serif; }
+    .subtitle, .legend-label { fill: #64748b; font: 13px Inter,sans-serif; }
     .level-0 { fill: #ebedf0; }
     .level-1 { fill: #9be9a8; }
     .level-2 { fill: #40c463; }
@@ -170,7 +170,7 @@ function activitySvg(activity) {
 </svg>`;
 }
 
-function contextSvg(profile, repositories, activity, avatarDataUrl) {
+function githubActivitySvg(profile, repositories, activity, avatarDataUrl) {
   const width = 880;
   const height = 350;
   const collection = activity.user.contributionsCollection;
@@ -203,7 +203,7 @@ function contextSvg(profile, repositories, activity, avatarDataUrl) {
   }).join("");
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="title desc">
-  <title id="title">GitHub Context for ${escapeXml(profile.login || owner)}</title>
+  <title id="title">GitHub activity for ${escapeXml(profile.login || owner)}</title>
   <desc id="desc">Public profile and contribution metrics for ${escapeXml(profile.login || owner)}.</desc>
   <defs>
     <linearGradient id="context-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#111421"/><stop offset="1" stop-color="#0b0b15"/></linearGradient>
@@ -211,7 +211,7 @@ function contextSvg(profile, repositories, activity, avatarDataUrl) {
     <clipPath id="context-avatar"><circle cx="46" cy="43" r="12" /></clipPath>
   </defs>
   <style>
-    text { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    text { font-family: Inter, sans-serif; }
     .title { fill: #f3f3ff; font-size: 19px; font-weight: 700; }
     .subtitle { fill: #8d91aa; font-size: 11px; }
     .label { fill: #8d91aa; font-size: 10px; }
@@ -221,8 +221,8 @@ function contextSvg(profile, repositories, activity, avatarDataUrl) {
   <rect x="1" y="1" width="878" height="348" rx="17" fill="url(#context-bg)" stroke="#302d49" />
   <path d="M18 2h844" stroke="url(#context-line)" stroke-width="2" opacity=".8" />
   <image href="${avatarDataUrl}" x="34" y="31" width="24" height="24" clip-path="url(#context-avatar)" preserveAspectRatio="xMidYMid slice" />
-  <text x="69" y="45" class="title">Context</text>
-  <text x="69" y="61" class="subtitle">@${escapeXml(profile.login || owner)} · GitHub activity overview</text>
+  <text x="69" y="45" class="title">GitHub activity</text>
+  <text x="69" y="61" class="subtitle">@${escapeXml(profile.login || owner)} · public contribution overview</text>
   <text x="852" y="46" text-anchor="end" class="subtitle">PUBLIC PROFILE</text>
   <path d="M26 76h828" stroke="#25283a" />
   ${rows}
@@ -364,7 +364,7 @@ function profileSvg(profile, repositories, languages, activity, avatarDataUrl) {
   <title id="title">${escapeXml(profile.name || profile.login)} — GitHub profile</title>
   <desc id="desc">An animated developer profile for ${escapeXml(profile.login)} with public repository statistics, programming languages, and contribution activity.</desc>
   <style>
-    text { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    text { font-family: Inter, sans-serif; }
     .panel { fill: #0b0b16; stroke: #25233b; stroke-width: 1; }
     .panel-title { fill: #f1f2ff; font-size: 13px; font-weight: 700; letter-spacing: 2px; }
     .panel-kicker { fill: #8586a8; font-size: 9px; letter-spacing: 1.8px; }
@@ -491,7 +491,7 @@ function repositoryCardSvg(repository) {
     <linearGradient id="accent-line" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${accent}"/><stop offset="1" stop-color="${accent}" stop-opacity=".2"/></linearGradient>
   </defs>
   <style>
-    text { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    text { font-family: Inter, sans-serif; }
     .name { fill: #f3f3ff; font-size: 15px; font-weight: 700; }
     .description { fill: #a5a5bf; font-size: 11px; }
     .meta { fill: #8586a2; font-size: 10px; }
@@ -631,11 +631,11 @@ async function main() {
   const readme = [
     "<!-- Generated from the public GitHub API by scripts/update-profile.mjs. -->",
     `<p align="center"><a href="https://github.com/${owner}?tab=repositories"><img src="./assets/profile.svg" alt="${escapeXml(profile.name || owner)} GitHub statistics, languages, and contribution activity" /></a></p>`,
-    `<p align="center"><a href="https://github.com/${owner}?tab=repositories"><img src="./assets/project-constellation.gif" width="900" alt="Animated project map connecting ${escapeXml(owner)} to CanteenOS, LibSync, MedikaFlow, BlindMaze, and the SMK BPPI website" /></a></p>`,
-    '<h2 align="center">Featured projects</h2>',
-    projectTableMarkup(projects),
-    `<p align="center"><img src="./assets/context.svg" width="880" alt="GitHub context and contribution metrics for ${escapeXml(owner)}" /></p>`,
+    `<p align="center"><img src="./assets/github-activity.svg" width="880" alt="GitHub activity metrics for ${escapeXml(owner)}" /></p>`,
     '<h2 align="center">Make something cool</h2>',
+    `<p align="center"><a href="https://github.com/${owner}"><img src="./assets/github-profile-badge.gif" width="900" alt="GitHub profile badge for @${escapeXml(owner)}" /></a></p>`,
+    `<p align="center"><a href="https://github.com/${owner}">GitHub</a></p>`,
+    `<p align="center"><a href="https://github.com/${owner}?tab=repositories">Explore all repositories →</a></p>`,
     "",
   ].join("\n");
 
@@ -645,7 +645,7 @@ async function main() {
   await mkdir(projectAssetsDirectory, { recursive: true });
   await writeFile(new URL("./README.md", root), readme, "utf8");
   await writeFile(new URL("./assets/profile.svg", root), profileSvg(profile, repositories, languages, activity, avatarDataUrl), "utf8");
-  await writeFile(new URL("./assets/context.svg", root), contextSvg(profile, repositories, activity, avatarDataUrl), "utf8");
+  await writeFile(new URL("./assets/github-activity.svg", root), githubActivitySvg(profile, repositories, activity, avatarDataUrl), "utf8");
   await writeFile(new URL("./assets/activity.svg", root), activitySvg(activity.user.contributionsCollection), "utf8");
   await writeFile(new URL("./assets/languages.svg", root), languageSvg(languages), "utf8");
   const projectFiles = new Set();

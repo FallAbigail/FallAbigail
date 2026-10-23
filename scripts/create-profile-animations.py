@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from math import cos, pi, sin
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
@@ -26,14 +27,21 @@ COLORS = {
 
 
 def font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+    inter_font = ROOT / "assets" / "fonts" / "Inter[opsz,wght].ttf"
     candidates = (
         [
+            str(inter_font),
+            "C:/Windows/Fonts/Inter-Bold.ttf",
+            "C:/Windows/Fonts/InterVariable.ttf",
             "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
             "C:/Windows/Fonts/segoeuib.ttf",
             "C:/Windows/Fonts/arialbd.ttf",
         ]
         if bold
         else [
+            str(inter_font),
+            "C:/Windows/Fonts/Inter-Regular.ttf",
+            "C:/Windows/Fonts/InterVariable.ttf",
             "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
             "C:/Windows/Fonts/segoeui.ttf",
             "C:/Windows/Fonts/arial.ttf",
@@ -41,7 +49,10 @@ def font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont | ImageFont.Im
     )
     for candidate in candidates:
         try:
-            return ImageFont.truetype(candidate, size * SCALE)
+            loaded_font = ImageFont.truetype(candidate, size * SCALE)
+            if candidate == str(inter_font) and hasattr(loaded_font, "set_variation_by_axes"):
+                loaded_font.set_variation_by_axes([14, 700 if bold else 400])
+            return loaded_font
         except OSError:
             continue
     return ImageFont.load_default()
@@ -161,14 +172,89 @@ def network_frame(frame_index: int, frame_count: int = 60) -> Image.Image:
     return image.convert("RGB").resize((width, height), Image.Resampling.LANCZOS)
 
 
+def rounded_rect_path(x1: float, y1: float, x2: float, y2: float, radius: float, steps: int = 14) -> list[tuple[float, float]]:
+    points: list[tuple[float, float]] = []
+
+    def line(start: tuple[float, float], end: tuple[float, float], count: int = 18) -> None:
+        for index in range(count):
+            t = index / count
+            points.append((start[0] + (end[0] - start[0]) * t, start[1] + (end[1] - start[1]) * t))
+
+    def arc(cx: float, cy: float, start: int, end: int) -> None:
+        for index in range(steps):
+            angle = (start + (end - start) * index / (steps - 1)) * pi / 180
+            points.append((cx + radius * cos(angle), cy + radius * sin(angle)))
+
+    line((x1 + radius, y1), (x2 - radius, y1))
+    arc(x2 - radius, y1 + radius, -90, 0)
+    line((x2, y1 + radius), (x2, y2 - radius))
+    arc(x2 - radius, y2 - radius, 0, 90)
+    line((x2 - radius, y2), (x1 + radius, y2))
+    arc(x1 + radius, y2 - radius, 90, 180)
+    line((x1, y2 - radius), (x1, y1 + radius))
+    arc(x1 + radius, y1 + radius, 180, 270)
+    points.append(points[0])
+    return points
+
+
+def github_badge_base(width: int = 1000, height: int = 180) -> Image.Image:
+    image = Image.new("RGB", (width * SCALE, height * SCALE), "#090b14")
+    glow = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    glow_draw = ImageDraw.Draw(glow)
+    glow_draw.ellipse((-140 * SCALE, -170 * SCALE, 520 * SCALE, 120 * SCALE), fill=(0, 193, 219, 118))
+    glow_draw.ellipse((680 * SCALE, 55 * SCALE, 1160 * SCALE, 340 * SCALE), fill=(116, 54, 175, 85))
+    glow = glow.filter(ImageFilter.GaussianBlur(62 * SCALE))
+    image = Image.alpha_composite(image.convert("RGBA"), glow)
+    draw = ImageDraw.Draw(image)
+
+    draw.rounded_rectangle((2 * SCALE, 2 * SCALE, (width - 3) * SCALE, (height - 3) * SCALE), radius=25 * SCALE, fill="#0b0e18", outline="#176887", width=2 * SCALE)
+    draw.rounded_rectangle((31 * SCALE, 25 * SCALE, 969 * SCALE, 155 * SCALE), radius=28 * SCALE, fill="#090c15", outline="#19516e", width=2 * SCALE)
+
+    pill = (380, 60, 620, 120)
+    draw.rounded_rectangle(tuple(value * SCALE for value in pill), radius=30 * SCALE, fill="#0a0d16", outline="#315d72", width=2 * SCALE)
+    draw.ellipse((402 * SCALE, 73 * SCALE, 436 * SCALE, 107 * SCALE), fill="#303640")
+    draw.text((419 * SCALE, 89 * SCALE), "G", font=font(15, True), fill="#f5f7fa", anchor="mm")
+    draw.text((452 * SCALE, 77 * SCALE), "GitHub", font=font(13, True), fill="#69dffa")
+    draw.text((452 * SCALE, 97 * SCALE), "@FallAbigail", font=font(13, True), fill="#69dffa")
+    draw.text((968 * SCALE, 137 * SCALE), "github.com", font=font(8, True), fill="#7187aa", anchor="ra")
+    return image
+
+
+def github_badge_frame(frame_index: int, frame_count: int = 48) -> Image.Image:
+    width, height = 1000, 180
+    image = github_badge_base(width, height)
+    pill_path = rounded_rect_path(380, 60, 620, 120, 30)
+    segment_length = max(12, round(len(pill_path) * 0.13))
+    start = round(frame_index / frame_count * len(pill_path))
+    points = [pill_path[(start + offset) % len(pill_path)] for offset in range(segment_length + 1)]
+    high_res_points = [scaled(point) for point in points]
+
+    glow = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    glow_draw = ImageDraw.Draw(glow)
+    glow_draw.line(high_res_points, fill=(77, 207, 255, 200), width=8 * SCALE, joint="curve")
+    glow = glow.filter(ImageFilter.GaussianBlur(7 * SCALE))
+    image = Image.alpha_composite(image, glow)
+    draw = ImageDraw.Draw(image)
+
+    for index in range(len(high_res_points) - 1):
+        progress = index / max(len(high_res_points) - 2, 1)
+        start_color = (101, 231, 255)
+        end_color = (177, 132, 255)
+        color = tuple(round(a + (b - a) * progress) for a, b in zip(start_color, end_color))
+        draw.line((high_res_points[index], high_res_points[index + 1]), fill=color, width=3 * SCALE)
+
+    return image.convert("RGB").resize((width, height), Image.Resampling.LANCZOS)
+
+
 def main() -> None:
     ASSETS.mkdir(parents=True, exist_ok=True)
     (ASSETS / "blindmaze-easter-egg.gif").unlink(missing_ok=True)
-    (ASSETS / "github-profile-badge.gif").unlink(missing_ok=True)
-    constellation = [network_frame(index) for index in range(60)]
-    save_gif(constellation, ASSETS / "project-constellation.gif", 100)
+    (ASSETS / "project-constellation.gif").unlink(missing_ok=True)
 
-    print(f"Created project constellation ({len(constellation)} frames).")
+    github_badge = [github_badge_frame(index) for index in range(48)]
+    save_gif(github_badge, ASSETS / "github-profile-badge.gif", 95)
+    (ASSETS / "context.svg").unlink(missing_ok=True)
+    print(f"Created GitHub badge ({len(github_badge)} frames).")
 
 
 if __name__ == "__main__":
