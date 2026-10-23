@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="350" viewBox="0 0 880 350" role="img" aria-labelledby="title desc">
+  <title id="title">GitHub Context for FallAbigail</title>
+  <desc id="desc">Public profile and contribution metrics for FallAbigail.</desc>
+  <defs>
+    <linearGradient id="context-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#111421"/><stop offset="1" stop-color="#0b0b15"/></linearGradient>
+    <linearGradient id="context-line" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#75e7ff"/><stop offset="1" stop-color="#b18cff"/></linearGradient>
+    <clipPath id="context-avatar"><circle cx="46" cy="43" r="12" /></clipPath>
+  </defs>
+  <style>
+    text { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .title { fill: #f3f3ff; font-size: 19px; font-weight: 700; }
+    .subtitle { fill: #8d91aa; font-size: 11px; }
+    .label { fill: #8d91aa; font-size: 10px; }
+    .value { fill: #e8e9f5; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .glyph { font-weight: 700; }
+  </style>
+  <rect x="1" y="1" width="878" height="348" rx="17" fill="url(#context-bg)" stroke="#302d49" />
+  <path d="M18 2h844" stroke="url(#context-line)" stroke-width="2" opacity=".8" />
+  <image href="data:image/jpeg;base64,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" x="34" y="31" width="24" height="24" clip-path="url(#context-avatar)" preserveAspectRatio="xMidYMid slice" />
+  <text x="69" y="45" class="title">Context</text>
+  <text x="69" y="61" class="subtitle">@FallAbigail · GitHub activity overview</text>
+  <text x="852" y="46" text-anchor="end" class="subtitle">PUBLIC PROFILE</text>
+  <path d="M26 76h828" stroke="#25283a" />
+  <g>
+      <rect x="26" y="94" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="41.5" y="114" text-anchor="middle" class="glyph" fill="#75e7ff" font-size="12">F</text>
+      <text x="69" y="106" class="label">Followers</text>
+      <text x="69" y="123" class="value">1</text>
+    </g><g>
+      <rect x="26" y="142" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="41.5" y="162" text-anchor="middle" class="glyph" fill="#c6a5ff" font-size="12">→</text>
+      <text x="69" y="154" class="label">Following</text>
+      <text x="69" y="171" class="value">6</text>
+    </g><g>
+      <rect x="26" y="190" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="41.5" y="210" text-anchor="middle" class="glyph" fill="#75e7ff" font-size="12">R</text>
+      <text x="69" y="202" class="label">Public repositories</text>
+      <text x="69" y="219" class="value">5</text>
+    </g><g>
+      <rect x="26" y="238" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="41.5" y="258" text-anchor="middle" class="glyph" fill="#ff8fca" font-size="12">I</text>
+      <text x="69" y="250" class="label">Issues · 12 mo</text>
+      <text x="69" y="267" class="value">0</text>
+    </g><g>
+      <rect x="26" y="286" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="41.5" y="306" text-anchor="middle" class="glyph" fill="#ffd36d" font-size="12">✦</text>
+      <text x="69" y="298" class="label">Contributions · 12 mo</text>
+      <text x="69" y="315" class="value">15</text>
+    </g><g>
+      <rect x="446" y="94" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="461.5" y="114" text-anchor="middle" class="glyph" fill="#75e7ff" font-size="12">⌘</text>
+      <text x="489" y="106" class="label">Commits · 12 mo</text>
+      <text x="489" y="123" class="value">8</text>
+    </g><g>
+      <rect x="446" y="142" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="461.5" y="162" text-anchor="middle" class="glyph" fill="#c6a5ff" font-size="8">PR</text>
+      <text x="489" y="154" class="label">Pull requests · 12 mo</text>
+      <text x="489" y="171" class="value">0</text>
+    </g><g>
+      <rect x="446" y="190" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="461.5" y="210" text-anchor="middle" class="glyph" fill="#ff8fca" font-size="12">✓</text>
+      <text x="489" y="202" class="label">Reviews · 12 mo</text>
+      <text x="489" y="219" class="value">0</text>
+    </g><g>
+      <rect x="446" y="238" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="461.5" y="258" text-anchor="middle" class="glyph" fill="#ffd36d" font-size="12">★</text>
+      <text x="489" y="250" class="label">Stars received</text>
+      <text x="489" y="267" class="value">0</text>
+    </g><g>
+      <rect x="446" y="286" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="461.5" y="306" text-anchor="middle" class="glyph" fill="#75e7ff" font-size="12">⑂</text>
+      <text x="489" y="298" class="label">Forks received</text>
+      <text x="489" y="315" class="value">0</text>
+    </g>
+  <text x="852" y="333" text-anchor="end" class="subtitle">Updated with public GitHub data</text>
+</svg>

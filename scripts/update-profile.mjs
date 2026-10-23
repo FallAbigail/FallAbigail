@@ -170,6 +170,66 @@ function activitySvg(activity) {
 </svg>`;
 }
 
+function contextSvg(profile, repositories, activity, avatarDataUrl) {
+  const width = 880;
+  const height = 350;
+  const collection = activity.user.contributionsCollection;
+  const stars = repositories.reduce((sum, repository) => sum + repository.stargazers_count, 0);
+  const forks = repositories.reduce((sum, repository) => sum + repository.forks_count, 0);
+  const stats = [
+    { label: "Followers", value: profile.followers, glyph: "F", color: "#75e7ff" },
+    { label: "Following", value: profile.following, glyph: "→", color: "#c6a5ff" },
+    { label: "Public repositories", value: repositories.length, glyph: "R", color: "#75e7ff" },
+    { label: "Issues · 12 mo", value: collection.totalIssueContributions, glyph: "I", color: "#ff8fca" },
+    { label: "Contributions · 12 mo", value: collection.contributionCalendar.totalContributions, glyph: "✦", color: "#ffd36d" },
+    { label: "Commits · 12 mo", value: collection.totalCommitContributions, glyph: "⌘", color: "#75e7ff" },
+    { label: "Pull requests · 12 mo", value: collection.totalPullRequestContributions, glyph: "PR", color: "#c6a5ff" },
+    { label: "Reviews · 12 mo", value: collection.totalPullRequestReviewContributions, glyph: "✓", color: "#ff8fca" },
+    { label: "Stars received", value: stars, glyph: "★", color: "#ffd36d" },
+    { label: "Forks received", value: forks, glyph: "⑂", color: "#75e7ff" },
+  ];
+  const rows = stats.map((stat, index) => {
+    const column = index < 5 ? 0 : 1;
+    const row = index % 5;
+    const x = column === 0 ? 26 : 446;
+    const y = 94 + row * 48;
+    const glyphSize = stat.glyph.length > 1 ? 8 : 12;
+    return `<g>
+      <rect x="${x}" y="${y}" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="${x + 15.5}" y="${y + 20}" text-anchor="middle" class="glyph" fill="${stat.color}" font-size="${glyphSize}">${escapeXml(stat.glyph)}</text>
+      <text x="${x + 43}" y="${y + 12}" class="label">${escapeXml(stat.label)}</text>
+      <text x="${x + 43}" y="${y + 29}" class="value">${Number(stat.value).toLocaleString("en-US")}</text>
+    </g>`;
+  }).join("");
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="title desc">
+  <title id="title">GitHub Context for ${escapeXml(profile.login || owner)}</title>
+  <desc id="desc">Public profile and contribution metrics for ${escapeXml(profile.login || owner)}.</desc>
+  <defs>
+    <linearGradient id="context-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#111421"/><stop offset="1" stop-color="#0b0b15"/></linearGradient>
+    <linearGradient id="context-line" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#75e7ff"/><stop offset="1" stop-color="#b18cff"/></linearGradient>
+    <clipPath id="context-avatar"><circle cx="46" cy="43" r="12" /></clipPath>
+  </defs>
+  <style>
+    text { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .title { fill: #f3f3ff; font-size: 19px; font-weight: 700; }
+    .subtitle { fill: #8d91aa; font-size: 11px; }
+    .label { fill: #8d91aa; font-size: 10px; }
+    .value { fill: #e8e9f5; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .glyph { font-weight: 700; }
+  </style>
+  <rect x="1" y="1" width="878" height="348" rx="17" fill="url(#context-bg)" stroke="#302d49" />
+  <path d="M18 2h844" stroke="url(#context-line)" stroke-width="2" opacity=".8" />
+  <image href="${avatarDataUrl}" x="34" y="31" width="24" height="24" clip-path="url(#context-avatar)" preserveAspectRatio="xMidYMid slice" />
+  <text x="69" y="45" class="title">Context</text>
+  <text x="69" y="61" class="subtitle">@${escapeXml(profile.login || owner)} · GitHub activity overview</text>
+  <text x="852" y="46" text-anchor="end" class="subtitle">PUBLIC PROFILE</text>
+  <path d="M26 76h828" stroke="#25283a" />
+  ${rows}
+  <text x="852" y="333" text-anchor="end" class="subtitle">Updated with public GitHub data</text>
+</svg>`;
+}
+
 function truncate(value, maxLength) {
   const text = String(value ?? "").replaceAll(/\s+/g, " ").trim();
   if (text.length <= maxLength) return text;
@@ -574,10 +634,8 @@ async function main() {
     `<p align="center"><a href="https://github.com/${owner}?tab=repositories"><img src="./assets/project-constellation.gif" width="900" alt="Animated project map connecting ${escapeXml(owner)} to CanteenOS, LibSync, MedikaFlow, BlindMaze, and the SMK BPPI website" /></a></p>`,
     '<h2 align="center">Featured projects</h2>',
     projectTableMarkup(projects),
+    `<p align="center"><img src="./assets/context.svg" width="880" alt="GitHub context and contribution metrics for ${escapeXml(owner)}" /></p>`,
     '<h2 align="center">Make something cool</h2>',
-    `<p align="center"><a href="https://github.com/${owner}"><img src="./assets/github-profile-badge.gif" width="900" alt="GitHub profile badge for @${escapeXml(owner)}" /></a></p>`,
-    `<p align="center"><a href="https://github.com/${owner}">GitHub</a></p>`,
-    `<p align="center"><a href="https://github.com/${owner}?tab=repositories">Explore all repositories →</a></p>`,
     "",
   ].join("\n");
 
@@ -587,6 +645,7 @@ async function main() {
   await mkdir(projectAssetsDirectory, { recursive: true });
   await writeFile(new URL("./README.md", root), readme, "utf8");
   await writeFile(new URL("./assets/profile.svg", root), profileSvg(profile, repositories, languages, activity, avatarDataUrl), "utf8");
+  await writeFile(new URL("./assets/context.svg", root), contextSvg(profile, repositories, activity, avatarDataUrl), "utf8");
   await writeFile(new URL("./assets/activity.svg", root), activitySvg(activity.user.contributionsCollection), "utf8");
   await writeFile(new URL("./assets/languages.svg", root), languageSvg(languages), "utf8");
   const projectFiles = new Set();
