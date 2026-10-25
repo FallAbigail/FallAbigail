@@ -2,6 +2,7 @@ name: Update profile data
 
 on:
   schedule:
+    - cron: "*/5 * * * *"
     - cron: "17 5 * * *"
   workflow_dispatch:
 
@@ -21,14 +22,17 @@ jobs:
           node-version: 22
 
       - name: Set up Python
+        if: ${{ github.event_name != 'schedule' || github.event.schedule == '17 5 * * *' }}
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Install animation generator dependency
+        if: ${{ github.event_name != 'schedule' || github.event.schedule == '17 5 * * *' }}
         run: python -m pip install Pillow
 
       - name: Generate animated profile assets
+        if: ${{ github.event_name != 'schedule' || github.event.schedule == '17 5 * * *' }}
         run: python scripts/create-profile-animations.py
 
       - name: Regenerate public repository data
