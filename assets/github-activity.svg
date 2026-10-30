@@ -45,12 +45,12 @@
       <rect x="26" y="286" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
       <text x="41.5" y="306" text-anchor="middle" class="glyph" fill="#ffd36d" font-size="12">✦</text>
       <text x="69" y="298" class="label">Contributions · 12 mo</text>
-      <text x="69" y="315" class="value">42</text>
+      <text x="69" y="315" class="value">50</text>
     </g><g>
       <rect x="446" y="94" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
       <text x="461.5" y="114" text-anchor="middle" class="glyph" fill="#75e7ff" font-size="12">⌘</text>
       <text x="489" y="106" class="label">Commits · 12 mo</text>
-      <text x="489" y="123" class="value">35</text>
+      <text x="489" y="123" class="value">43</text>
     </g><g>
       <rect x="446" y="142" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
       <text x="461.5" y="162" text-anchor="middle" class="glyph" fill="#c6a5ff" font-size="8">PR</text>
