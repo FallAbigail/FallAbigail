@@ -108,15 +108,15 @@
   <text x="50" y="533" class="panel-title">LANGUAGE DISTRIBUTION</text>
   <text x="950" y="533" text-anchor="end" class="panel-kicker">PUBLIC REPOSITORIES</text>
   <rect x="60" y="560" width="880" height="12" rx="6" fill="#191927" />
-  <g clip-path="url(#language-bar-clip)"><rect x="60.00" y="560" width="329.91" height="12" fill="#777bb4" /><rect x="389.91" y="560" width="305.44" height="12" fill="#3178c6" /><rect x="695.35" y="560" width="145.74" height="12" fill="#563d7c" /><rect x="841.10" y="560" width="81.25" height="12" fill="#f1e05a" /><rect x="922.35" y="560" width="16.87" height="12" fill="#336791" /><rect x="939.22" y="560" width="2.00" height="12" fill="#e34c26" /></g>
+  <g clip-path="url(#language-bar-clip)"><rect x="60.00" y="560" width="329.00" height="12" fill="#777bb4" /><rect x="389.00" y="560" width="305.86" height="12" fill="#3178c6" /><rect x="694.86" y="560" width="146.51" height="12" fill="#563d7c" /><rect x="841.37" y="560" width="81.03" height="12" fill="#f1e05a" /><rect x="922.40" y="560" width="16.82" height="12" fill="#336791" /><rect x="939.22" y="560" width="2.00" height="12" fill="#e34c26" /></g>
   <g>
       <circle cx="65" cy="600" r="4" fill="#777bb4" />
       <text x="77" y="604" class="body-label">PHP</text>
-      <text x="341.3333333333333" y="604" class="body-value" text-anchor="end">37.5%</text>
+      <text x="341.3333333333333" y="604" class="body-value" text-anchor="end">37.4%</text>
     </g><g>
       <circle cx="358.3333333333333" cy="600" r="4" fill="#3178c6" />
       <text x="370.3333333333333" y="604" class="body-label">TypeScript</text>
-      <text x="634.6666666666666" y="604" class="body-value" text-anchor="end">34.7%</text>
+      <text x="634.6666666666666" y="604" class="body-value" text-anchor="end">34.8%</text>
     </g><g>
       <circle cx="651.6666666666666" cy="600" r="4" fill="#563d7c" />
       <text x="663.6666666666666" y="604" class="body-label">CSS</text>
@@ -124,11 +124,11 @@
     </g><g>
       <circle cx="65" cy="628" r="4" fill="#f1e05a" />
       <text x="77" y="632" class="body-label">JavaScript</text>
-      <text x="341.3333333333333" y="632" class="body-value" text-anchor="end">9.23%</text>
+      <text x="341.3333333333333" y="632" class="body-value" text-anchor="end">9.21%</text>
     </g><g>
       <circle cx="358.3333333333333" cy="628" r="4" fill="#336791" />
       <text x="370.3333333333333" y="632" class="body-label">PLpgSQL</text>
-      <text x="634.6666666666666" y="632" class="body-value" text-anchor="end">1.92%</text>
+      <text x="634.6666666666666" y="632" class="body-value" text-anchor="end">1.91%</text>
     </g><g>
       <circle cx="651.6666666666666" cy="628" r="4" fill="#e34c26" />
       <text x="663.6666666666666" y="632" class="body-label">HTML</text>
