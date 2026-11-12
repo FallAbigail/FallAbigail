@@ -87,8 +87,8 @@ function languageSvg(languages) {
   }).join("");
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="title desc">
-  <title id="title">Languages used across public repositories</title>
-  <desc id="desc">${languages.length} languages detected from the public repositories of ${owner}.</desc>
+  <title id="title">Languages used across public project repositories</title>
+  <desc id="desc">${languages.length} languages detected from public project repositories, with the profile README repository excluded.</desc>
   <style>
     .card { fill: #ffffff; stroke: #e2e8f0; }
     .title { fill: #0f172a; font: 700 19px Inter,sans-serif; }
@@ -179,7 +179,7 @@ function githubActivitySvg(profile, repositories, activity, avatarDataUrl) {
   const stats = [
     { label: "Followers", value: profile.followers, glyph: "F", color: "#75e7ff" },
     { label: "Following", value: profile.following, glyph: "→", color: "#c6a5ff" },
-    { label: "Public repositories", value: repositories.length, glyph: "R", color: "#75e7ff" },
+    { label: "Public repositories", value: profile.public_repos, glyph: "R", color: "#75e7ff" },
     { label: "Issues · 12 mo", value: collection.totalIssueContributions, glyph: "I", color: "#ff8fca" },
     { label: "Contributions · 12 mo", value: collection.contributionCalendar.totalContributions, glyph: "✦", color: "#ffd36d" },
     { label: "Commits · 12 mo", value: collection.totalCommitContributions, glyph: "⌘", color: "#75e7ff" },
@@ -266,7 +266,7 @@ function profileSvg(profile, repositories, languages, activity, avatarDataUrl) {
   const panelWidth = width - padding * 2;
   const topLanguages = languages.slice(0, 6);
   const stats = [
-    { value: repositories.length, label: "PUBLIC REPOS", color: "#75e7ff" },
+    { value: repositories.length, label: "PROJECT REPOS", color: "#75e7ff" },
     { value: repositories.reduce((total, repo) => total + repo.stargazers_count, 0), label: "STARS", color: "#ffd36d" },
     { value: repositories.reduce((total, repo) => total + repo.forks_count, 0), label: "FORKS", color: "#c6a5ff" },
     { value: activity.user.contributionsCollection.totalCommitContributions, label: "COMMITS · 12 MO", color: "#ff8fca" },
@@ -421,7 +421,7 @@ function profileSvg(profile, repositories, languages, activity, avatarDataUrl) {
   <text x="${padding + 76}" y="${heroY + 60}" fill="#babbd4" font-size="9" letter-spacing="1">@${escapeXml(profile.login)}</text>
   <rect x="${width - padding - 170}" y="${heroY + 35}" width="142" height="26" rx="13" fill="#121322" stroke="#4b426e" />
   <circle cx="${width - padding - 152}" cy="${heroY + 48}" r="3" fill="#8cecff" />
-  <text x="${width - padding - 141}" y="${heroY + 52}" fill="#c5c6de" font-size="9" font-weight="700" letter-spacing="1">PUBLIC PROJECTS</text>
+  <text x="${width - padding - 141}" y="${heroY + 52}" fill="#c5c6de" font-size="9" font-weight="700" letter-spacing="1">${escapeXml(profile.public_repos)} PUBLIC REPOS</text>
   <text x="${width / 2}" y="${heroY + 126}" text-anchor="middle" fill="url(#name-gradient)" font-size="48" font-weight="900" letter-spacing="7">${escapeXml(profile.name || profile.login)}</text>
   <text x="${width / 2}" y="${heroY + 157}" text-anchor="middle" fill="#d9d5f1" font-size="11" font-weight="700" letter-spacing="3">SOFTWARE · TOOLS · INTERACTIVE PROJECTS</text>
   <text x="${width / 2}" y="${heroY + 215}" text-anchor="middle" fill="#8f90ac" font-size="10" letter-spacing="1.5">BUILDING AND SHARING PROJECTS ON GITHUB</text>
@@ -436,7 +436,7 @@ function profileSvg(profile, repositories, languages, activity, avatarDataUrl) {
 
   <rect class="panel" x="${padding}" y="${languagesY}" width="${panelWidth}" height="${languagesHeight}" rx="16" />
   <text x="${padding + 22}" y="${languagesY + 27}" class="panel-title">LANGUAGE DISTRIBUTION</text>
-  <text x="${width - padding - 22}" y="${languagesY + 27}" text-anchor="end" class="panel-kicker">PUBLIC REPOSITORIES</text>
+  <text x="${width - padding - 22}" y="${languagesY + 27}" text-anchor="end" class="panel-kicker">LANGUAGES FROM ${escapeXml(repositories.length)} PROJECT REPOS</text>
   <rect x="${languageBarX}" y="${languagesY + 54}" width="${languageBarWidth}" height="12" rx="6" fill="#191927" />
   <g clip-path="url(#language-bar-clip)">${languageSegments}</g>
   ${languageLegend}
@@ -558,7 +558,8 @@ function activityTable(activity) {
 function statsTable(repositories, profile) {
   const stars = repositories.reduce((sum, repository) => sum + repository.stargazers_count, 0);
   const rows = [
-    ["Public code repos", repositories.length],
+    ["Public repositories", profile.public_repos],
+    ["Project repositories (profile README excluded)", repositories.length],
     ["Stars", stars],
     ["Followers", profile.followers],
     ["Following", profile.following],

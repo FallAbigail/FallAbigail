@@ -59,7 +59,7 @@
   <text x="104" y="80" fill="#babbd4" font-size="9" letter-spacing="1">@FallAbigail</text>
   <rect x="802" y="55" width="142" height="26" rx="13" fill="#121322" stroke="#4b426e" />
   <circle cx="820" cy="68" r="3" fill="#8cecff" />
-  <text x="831" y="72" fill="#c5c6de" font-size="9" font-weight="700" letter-spacing="1">PUBLIC PROJECTS</text>
+  <text x="831" y="72" fill="#c5c6de" font-size="9" font-weight="700" letter-spacing="1">5 PUBLIC REPOS</text>
   <text x="500" y="146" text-anchor="middle" fill="url(#name-gradient)" font-size="48" font-weight="900" letter-spacing="7">FallAbigail</text>
   <text x="500" y="177" text-anchor="middle" fill="#d9d5f1" font-size="11" font-weight="700" letter-spacing="3">SOFTWARE · TOOLS · INTERACTIVE PROJECTS</text>
   <text x="500" y="235" text-anchor="middle" fill="#8f90ac" font-size="10" letter-spacing="1.5">BUILDING AND SHARING PROJECTS ON GITHUB</text>
@@ -96,7 +96,7 @@
   <text x="50" y="399" class="panel-kicker">PROFILE METRICS</text>
   
       <text x="146" y="439" text-anchor="middle" class="stat-value">4</text>
-      <text x="146" y="459" text-anchor="middle" class="stat-label" fill="#75e7ff">PUBLIC REPOS</text><line x1="264" y1="405" x2="264" y2="463" class="divider" />
+      <text x="146" y="459" text-anchor="middle" class="stat-label" fill="#75e7ff">PROJECT REPOS</text><line x1="264" y1="405" x2="264" y2="463" class="divider" />
       <text x="382" y="439" text-anchor="middle" class="stat-value">0</text>
       <text x="382" y="459" text-anchor="middle" class="stat-label" fill="#ffd36d">STARS</text><line x1="500" y1="405" x2="500" y2="463" class="divider" />
       <text x="618" y="439" text-anchor="middle" class="stat-value">0</text>
@@ -106,7 +106,7 @@
 
   <rect class="panel" x="28" y="506" width="944" height="174" rx="16" />
   <text x="50" y="533" class="panel-title">LANGUAGE DISTRIBUTION</text>
-  <text x="950" y="533" text-anchor="end" class="panel-kicker">PUBLIC REPOSITORIES</text>
+  <text x="950" y="533" text-anchor="end" class="panel-kicker">LANGUAGES FROM 4 PROJECT REPOS</text>
   <rect x="60" y="560" width="880" height="12" rx="6" fill="#191927" />
   <g clip-path="url(#language-bar-clip)"><rect x="60.00" y="560" width="453.79" height="12" fill="#777bb4" /><rect x="513.79" y="560" width="173.42" height="12" fill="#563d7c" /><rect x="687.21" y="560" width="156.98" height="12" fill="#3178c6" /><rect x="844.20" y="560" width="72.37" height="12" fill="#f1e05a" /><rect x="916.57" y="560" width="23.21" height="12" fill="#336791" /><rect x="939.77" y="560" width="2.00" height="12" fill="#e34c26" /></g>
   <g>

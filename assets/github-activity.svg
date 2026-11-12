@@ -35,7 +35,7 @@
       <rect x="26" y="190" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
       <text x="41.5" y="210" text-anchor="middle" class="glyph" fill="#75e7ff" font-size="12">R</text>
       <text x="69" y="202" class="label">Public repositories</text>
-      <text x="69" y="219" class="value">4</text>
+      <text x="69" y="219" class="value">5</text>
     </g><g>
       <rect x="26" y="238" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
       <text x="41.5" y="258" text-anchor="middle" class="glyph" fill="#ff8fca" font-size="12">I</text>
