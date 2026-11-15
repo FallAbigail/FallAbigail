@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="880" height="350" viewBox="0 0 880 350" role="img" aria-labelledby="title desc">
-  <title id="title">GitHub activity for FallAbigail</title>
-  <desc id="desc">Public profile and contribution metrics for FallAbigail.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="400" viewBox="0 0 880 400" role="img" aria-labelledby="title desc">
+  <title id="title">GitHub profile and activity for FallAbigail</title>
+  <desc id="desc">GitHub calendar contributions and their available category totals, alongside current public profile metrics for FallAbigail.</desc>
   <defs>
     <linearGradient id="context-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#111421"/><stop offset="1" stop-color="#0b0b15"/></linearGradient>
     <linearGradient id="context-line" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#75e7ff"/><stop offset="1" stop-color="#b18cff"/></linearGradient>
@@ -23,54 +23,64 @@
   <path d="M26 76h828" stroke="#25283a" />
   <g>
       <rect x="26" y="94" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
-      <text x="41.5" y="114" text-anchor="middle" class="glyph" fill="#75e7ff" font-size="12">F</text>
-      <text x="69" y="106" class="label">Followers</text>
-      <text x="69" y="123" class="value">3</text>
+      <text x="41.5" y="114" text-anchor="middle" class="glyph" fill="#ffd36d" font-size="12">✦</text>
+      <text x="69" y="106" class="label">Contributions · 12 mo</text>
+      <text x="69" y="123" class="value">6</text>
     </g><g>
-      <rect x="26" y="142" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
-      <text x="41.5" y="162" text-anchor="middle" class="glyph" fill="#c6a5ff" font-size="12">→</text>
-      <text x="69" y="154" class="label">Following</text>
-      <text x="69" y="171" class="value">6</text>
+      <rect x="26" y="139" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="41.5" y="159" text-anchor="middle" class="glyph" fill="#75e7ff" font-size="12">⌘</text>
+      <text x="69" y="151" class="label">Commits · 12 mo</text>
+      <text x="69" y="168" class="value">0</text>
     </g><g>
-      <rect x="26" y="190" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
-      <text x="41.5" y="210" text-anchor="middle" class="glyph" fill="#75e7ff" font-size="12">R</text>
-      <text x="69" y="202" class="label">Public repositories</text>
-      <text x="69" y="219" class="value">5</text>
+      <rect x="26" y="184" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="41.5" y="204" text-anchor="middle" class="glyph" fill="#75e7ff" font-size="12">R</text>
+      <text x="69" y="196" class="label">Repositories created · 12 mo</text>
+      <text x="69" y="213" class="value">5</text>
     </g><g>
-      <rect x="26" y="238" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
-      <text x="41.5" y="258" text-anchor="middle" class="glyph" fill="#ff8fca" font-size="12">I</text>
-      <text x="69" y="250" class="label">Issues · 12 mo</text>
-      <text x="69" y="267" class="value">0</text>
+      <rect x="26" y="229" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="41.5" y="249" text-anchor="middle" class="glyph" fill="#ff8fca" font-size="12">I</text>
+      <text x="69" y="241" class="label">Issues opened · 12 mo</text>
+      <text x="69" y="258" class="value">0</text>
     </g><g>
-      <rect x="26" y="286" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
-      <text x="41.5" y="306" text-anchor="middle" class="glyph" fill="#ffd36d" font-size="12">✦</text>
-      <text x="69" y="298" class="label">Contributions · 12 mo</text>
-      <text x="69" y="315" class="value">6</text>
+      <rect x="26" y="274" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="41.5" y="294" text-anchor="middle" class="glyph" fill="#c6a5ff" font-size="8">PR</text>
+      <text x="69" y="286" class="label">Pull requests opened · 12 mo</text>
+      <text x="69" y="303" class="value">0</text>
+    </g><g>
+      <rect x="26" y="319" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="41.5" y="339" text-anchor="middle" class="glyph" fill="#ff8fca" font-size="12">✓</text>
+      <text x="69" y="331" class="label">Reviews submitted · 12 mo</text>
+      <text x="69" y="348" class="value">0</text>
     </g><g>
       <rect x="446" y="94" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
-      <text x="461.5" y="114" text-anchor="middle" class="glyph" fill="#75e7ff" font-size="12">⌘</text>
-      <text x="489" y="106" class="label">Commits · 12 mo</text>
-      <text x="489" y="123" class="value">0</text>
+      <text x="461.5" y="114" text-anchor="middle" class="glyph" fill="#75e7ff" font-size="12">R</text>
+      <text x="489" y="106" class="label">Public repositories</text>
+      <text x="489" y="123" class="value">5</text>
     </g><g>
-      <rect x="446" y="142" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
-      <text x="461.5" y="162" text-anchor="middle" class="glyph" fill="#c6a5ff" font-size="8">PR</text>
-      <text x="489" y="154" class="label">Pull requests · 12 mo</text>
-      <text x="489" y="171" class="value">0</text>
+      <rect x="446" y="139" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="461.5" y="159" text-anchor="middle" class="glyph" fill="#75e7ff" font-size="12">F</text>
+      <text x="489" y="151" class="label">Followers</text>
+      <text x="489" y="168" class="value">3</text>
     </g><g>
-      <rect x="446" y="190" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
-      <text x="461.5" y="210" text-anchor="middle" class="glyph" fill="#ff8fca" font-size="12">✓</text>
-      <text x="489" y="202" class="label">Reviews · 12 mo</text>
-      <text x="489" y="219" class="value">0</text>
+      <rect x="446" y="184" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="461.5" y="204" text-anchor="middle" class="glyph" fill="#c6a5ff" font-size="12">→</text>
+      <text x="489" y="196" class="label">Following</text>
+      <text x="489" y="213" class="value">6</text>
     </g><g>
-      <rect x="446" y="238" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
-      <text x="461.5" y="258" text-anchor="middle" class="glyph" fill="#ffd36d" font-size="12">★</text>
-      <text x="489" y="250" class="label">Stars received</text>
-      <text x="489" y="267" class="value">0</text>
+      <rect x="446" y="229" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="461.5" y="249" text-anchor="middle" class="glyph" fill="#ffd36d" font-size="12">★</text>
+      <text x="489" y="241" class="label">Stars received</text>
+      <text x="489" y="258" class="value">0</text>
     </g><g>
-      <rect x="446" y="286" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
-      <text x="461.5" y="306" text-anchor="middle" class="glyph" fill="#75e7ff" font-size="12">⑂</text>
-      <text x="489" y="298" class="label">Forks received</text>
-      <text x="489" y="315" class="value">0</text>
+      <rect x="446" y="274" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="461.5" y="294" text-anchor="middle" class="glyph" fill="#75e7ff" font-size="12">⑂</text>
+      <text x="489" y="286" class="label">Forks received</text>
+      <text x="489" y="303" class="value">0</text>
+    </g><g><title>Difference between GitHub&apos;s calendar total and its currently categorized contribution totals.</title>
+      <rect x="446" y="319" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
+      <text x="461.5" y="339" text-anchor="middle" class="glyph" fill="#ff8fca" font-size="12">…</text>
+      <text x="489" y="331" class="label">Calendar-only contributions · 12 mo</text>
+      <text x="489" y="348" class="value">1</text>
     </g>
-  <text x="852" y="333" text-anchor="end" class="subtitle">Updated with public GitHub data</text>
+  <text x="852" y="381" text-anchor="end" class="subtitle">Calendar total follows GitHub's contribution graph</text>
 </svg>

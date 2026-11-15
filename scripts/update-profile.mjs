@@ -1,4 +1,5 @@
 import { mkdir, readdir, unlink, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 
 const owner = "FallAbigail";
 const profileRepository = owner;
@@ -30,6 +31,20 @@ async function github(path) {
     throw new Error(`GitHub API ${response.status} for ${path}: ${await response.text()}`);
   }
   return response.json();
+}
+
+async function githubAllPages(path) {
+  const separator = path.includes("?") ? "&" : "?";
+  const items = [];
+
+  for (let page = 1; ; page += 1) {
+    const pageItems = await github(`${path}${separator}page=${page}`);
+    if (!Array.isArray(pageItems)) {
+      throw new Error(`Expected a paginated GitHub API response for ${path}`);
+    }
+    items.push(...pageItems);
+    if (pageItems.length < 100) return items;
+  }
 }
 
 async function githubGraphql(query, variables) {
@@ -172,39 +187,57 @@ function activitySvg(activity) {
 
 function githubActivitySvg(profile, repositories, activity, avatarDataUrl) {
   const width = 880;
-  const height = 350;
+  const height = 400;
   const collection = activity.user.contributionsCollection;
+  const calendarTotal = collection.contributionCalendar.totalContributions;
+  const categorizedTotal = collection.totalCommitContributions
+    + collection.totalIssueContributions
+    + collection.totalPullRequestContributions
+    + collection.totalPullRequestReviewContributions
+    + collection.totalRepositoryContributions;
+  const calendarOnly = Math.max(calendarTotal - categorizedTotal, 0);
   const stars = repositories.reduce((sum, repository) => sum + repository.stargazers_count, 0);
   const forks = repositories.reduce((sum, repository) => sum + repository.forks_count, 0);
-  const stats = [
-    { label: "Followers", value: profile.followers, glyph: "F", color: "#75e7ff" },
-    { label: "Following", value: profile.following, glyph: "→", color: "#c6a5ff" },
-    { label: "Public repositories", value: profile.public_repos, glyph: "R", color: "#75e7ff" },
-    { label: "Issues · 12 mo", value: collection.totalIssueContributions, glyph: "I", color: "#ff8fca" },
-    { label: "Contributions · 12 mo", value: collection.contributionCalendar.totalContributions, glyph: "✦", color: "#ffd36d" },
-    { label: "Commits · 12 mo", value: collection.totalCommitContributions, glyph: "⌘", color: "#75e7ff" },
-    { label: "Pull requests · 12 mo", value: collection.totalPullRequestContributions, glyph: "PR", color: "#c6a5ff" },
-    { label: "Reviews · 12 mo", value: collection.totalPullRequestReviewContributions, glyph: "✓", color: "#ff8fca" },
-    { label: "Stars received", value: stars, glyph: "★", color: "#ffd36d" },
-    { label: "Forks received", value: forks, glyph: "⑂", color: "#75e7ff" },
+  const columns = [
+    [
+      { label: "Contributions · 12 mo", value: calendarTotal, glyph: "✦", color: "#ffd36d" },
+      { label: "Commits · 12 mo", value: collection.totalCommitContributions, glyph: "⌘", color: "#75e7ff" },
+      { label: "Repositories created · 12 mo", value: collection.totalRepositoryContributions, glyph: "R", color: "#75e7ff" },
+      { label: "Issues opened · 12 mo", value: collection.totalIssueContributions, glyph: "I", color: "#ff8fca" },
+      { label: "Pull requests opened · 12 mo", value: collection.totalPullRequestContributions, glyph: "PR", color: "#c6a5ff" },
+      { label: "Reviews submitted · 12 mo", value: collection.totalPullRequestReviewContributions, glyph: "✓", color: "#ff8fca" },
+    ],
+    [
+      { label: "Public repositories", value: profile.public_repos, glyph: "R", color: "#75e7ff" },
+      { label: "Followers", value: profile.followers, glyph: "F", color: "#75e7ff" },
+      { label: "Following", value: profile.following, glyph: "→", color: "#c6a5ff" },
+      { label: "Stars received", value: stars, glyph: "★", color: "#ffd36d" },
+      { label: "Forks received", value: forks, glyph: "⑂", color: "#75e7ff" },
+      {
+        label: "Calendar-only contributions · 12 mo",
+        value: calendarOnly,
+        glyph: "…",
+        color: "#ff8fca",
+        note: "Difference between GitHub's calendar total and its currently categorized contribution totals.",
+      },
+    ],
   ];
-  const rows = stats.map((stat, index) => {
-    const column = index < 5 ? 0 : 1;
-    const row = index % 5;
+  const rows = columns.flatMap((stats, column) => stats.map((stat, row) => {
     const x = column === 0 ? 26 : 446;
-    const y = 94 + row * 48;
+    const y = 94 + row * 45;
     const glyphSize = stat.glyph.length > 1 ? 8 : 12;
-    return `<g>
+    const note = stat.note ? `<title>${escapeXml(stat.note)}</title>` : "";
+    return `<g>${note}
       <rect x="${x}" y="${y}" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
       <text x="${x + 15.5}" y="${y + 20}" text-anchor="middle" class="glyph" fill="${stat.color}" font-size="${glyphSize}">${escapeXml(stat.glyph)}</text>
       <text x="${x + 43}" y="${y + 12}" class="label">${escapeXml(stat.label)}</text>
       <text x="${x + 43}" y="${y + 29}" class="value">${Number(stat.value).toLocaleString("en-US")}</text>
     </g>`;
-  }).join("");
+  })).join("");
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="title desc">
-  <title id="title">GitHub activity for ${escapeXml(profile.login || owner)}</title>
-  <desc id="desc">Public profile and contribution metrics for ${escapeXml(profile.login || owner)}.</desc>
+  <title id="title">GitHub profile and activity for ${escapeXml(profile.login || owner)}</title>
+  <desc id="desc">GitHub calendar contributions and their available category totals, alongside current public profile metrics for ${escapeXml(profile.login || owner)}.</desc>
   <defs>
     <linearGradient id="context-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#111421"/><stop offset="1" stop-color="#0b0b15"/></linearGradient>
     <linearGradient id="context-line" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#75e7ff"/><stop offset="1" stop-color="#b18cff"/></linearGradient>
@@ -226,7 +259,7 @@ function githubActivitySvg(profile, repositories, activity, avatarDataUrl) {
   <text x="852" y="46" text-anchor="end" class="subtitle">PUBLIC PROFILE</text>
   <path d="M26 76h828" stroke="#25283a" />
   ${rows}
-  <text x="852" y="333" text-anchor="end" class="subtitle">Updated with public GitHub data</text>
+  <text x="852" y="381" text-anchor="end" class="subtitle">Calendar total follows GitHub's contribution graph</text>
 </svg>`;
 }
 
@@ -259,7 +292,7 @@ async function avatarAsDataUrl(avatarUrl) {
   return `data:${contentType};base64,${image.toString("base64")}`;
 }
 
-function profileSvg(profile, repositories, languages, activity, avatarDataUrl) {
+function profileSvg(profile, projectRepositories, publicRepositories, languages, activity, avatarDataUrl) {
   const width = 1000;
   const padding = 28;
   const gap = 14;
@@ -267,8 +300,8 @@ function profileSvg(profile, repositories, languages, activity, avatarDataUrl) {
   const topLanguages = languages.slice(0, 6);
   const stats = [
     { value: profile.public_repos, label: "PUBLIC REPOS", color: "#75e7ff" },
-    { value: repositories.reduce((total, repo) => total + repo.stargazers_count, 0), label: "STARS RECEIVED", color: "#ffd36d" },
-    { value: repositories.reduce((total, repo) => total + repo.forks_count, 0), label: "FORKS RECEIVED", color: "#c6a5ff" },
+    { value: publicRepositories.reduce((total, repo) => total + repo.stargazers_count, 0), label: "STARS RECEIVED", color: "#ffd36d" },
+    { value: publicRepositories.reduce((total, repo) => total + repo.forks_count, 0), label: "FORKS RECEIVED", color: "#c6a5ff" },
     { value: activity.user.contributionsCollection.contributionCalendar.totalContributions, label: "CONTRIBUTIONS · 12 MO", color: "#ff8fca" },
   ];
   const contributionCalendar = activity.user.contributionsCollection.contributionCalendar;
@@ -436,7 +469,7 @@ function profileSvg(profile, repositories, languages, activity, avatarDataUrl) {
 
   <rect class="panel" x="${padding}" y="${languagesY}" width="${panelWidth}" height="${languagesHeight}" rx="16" />
   <text x="${padding + 22}" y="${languagesY + 27}" class="panel-title">LANGUAGE DISTRIBUTION</text>
-  <text x="${width - padding - 22}" y="${languagesY + 27}" text-anchor="end" class="panel-kicker">LANGUAGES FROM ${escapeXml(repositories.length)} PROJECT REPOS</text>
+  <text x="${width - padding - 22}" y="${languagesY + 27}" text-anchor="end" class="panel-kicker">LANGUAGES FROM ${escapeXml(projectRepositories.length)} PROJECT REPOS</text>
   <rect x="${languageBarX}" y="${languagesY + 54}" width="${languageBarWidth}" height="12" rx="6" fill="#191927" />
   <g clip-path="url(#language-bar-clip)">${languageSegments}</g>
   ${languageLegend}
@@ -587,6 +620,7 @@ async function main() {
           totalIssueContributions
           totalPullRequestContributions
           totalPullRequestReviewContributions
+          totalRepositoryContributions
           contributionCalendar {
             totalContributions
             weeks {
@@ -603,16 +637,18 @@ async function main() {
   `;
   const [profile, allRepositories] = await Promise.all([
     github(`/users/${owner}`),
-    github(`/users/${owner}/repos?per_page=100&sort=updated`),
+    githubAllPages(`/users/${owner}/repos?per_page=100&sort=updated`),
   ]);
   const activity = await githubGraphql(activityQuery, {
     login: owner,
     from: from.toISOString(),
     to: to.toISOString(),
   });
-  const repositories = allRepositories.filter((repository) => (
-    !repository.private && repository.name !== profileRepository
-  ));
+  const publicRepositories = allRepositories.filter((repository) => !repository.private);
+  const repositories = publicRepositories.filter((repository) => repository.name !== profileRepository);
+  if (publicRepositories.length !== profile.public_repos) {
+    throw new Error(`GitHub returned ${publicRepositories.length} public repositories, but the profile API reports ${profile.public_repos}`);
+  }
   const languagesByName = new Map();
 
   for (const repository of repositories) {
@@ -628,11 +664,26 @@ async function main() {
     .map(([name, bytes]) => ({ name, bytes, percent: (bytes / totalBytes) * 100 }));
   const projects = featuredRepositories(repositories);
   const avatarDataUrl = await avatarAsDataUrl(profile.avatar_url);
+  const profileImage = profileSvg(profile, repositories, publicRepositories, languages, activity, avatarDataUrl);
+  const activityImage = githubActivitySvg(profile, publicRepositories, activity, avatarDataUrl);
+  const activityImageStandalone = activitySvg(activity.user.contributionsCollection);
+  const languageImage = languageSvg(languages);
+  const dayContributionTotal = activity.user.contributionsCollection.contributionCalendar.weeks
+    .flatMap((week) => week.contributionDays)
+    .reduce((sum, day) => sum + day.contributionCount, 0);
+  const calendarContributionTotal = activity.user.contributionsCollection.contributionCalendar.totalContributions;
+  if (dayContributionTotal !== calendarContributionTotal) {
+    throw new Error(`GitHub calendar total (${calendarContributionTotal}) does not match its daily counts (${dayContributionTotal})`);
+  }
+  const assetVersion = createHash("sha256")
+    .update([profileImage, activityImage, activityImageStandalone, languageImage].join("\n"))
+    .digest("hex")
+    .slice(0, 12);
 
   const readme = [
     "<!-- Generated from the public GitHub API by scripts/update-profile.mjs. -->",
-    `<p align="center"><a href="https://github.com/${owner}?tab=repositories"><img src="./assets/profile.svg" alt="${escapeXml(profile.name || owner)} GitHub statistics, languages, and contribution activity" /></a></p>`,
-    `<p align="center"><img src="./assets/github-activity.svg" width="880" alt="GitHub activity metrics for ${escapeXml(owner)}" /></p>`,
+    `<p align="center"><a href="https://github.com/${owner}?tab=repositories"><img src="./assets/profile.svg?v=${assetVersion}" alt="${escapeXml(profile.name || owner)} GitHub statistics, languages, and contribution activity" /></a></p>`,
+    `<p align="center"><img src="./assets/github-activity.svg?v=${assetVersion}" width="880" alt="GitHub activity and account metrics for ${escapeXml(owner)}" /></p>`,
     '<h2 align="center">Make something cool</h2>',
     `<p align="center"><a href="https://github.com/${owner}"><img src="./assets/github-profile-badge.gif" width="900" alt="GitHub profile badge for @${escapeXml(owner)}" /></a></p>`,
     `<p align="center"><a href="https://github.com/${owner}">GitHub</a></p>`,
@@ -645,10 +696,10 @@ async function main() {
   await mkdir(assetsDirectory, { recursive: true });
   await mkdir(projectAssetsDirectory, { recursive: true });
   await writeFile(new URL("./README.md", root), readme, "utf8");
-  await writeFile(new URL("./assets/profile.svg", root), profileSvg(profile, repositories, languages, activity, avatarDataUrl), "utf8");
-  await writeFile(new URL("./assets/github-activity.svg", root), githubActivitySvg(profile, repositories, activity, avatarDataUrl), "utf8");
-  await writeFile(new URL("./assets/activity.svg", root), activitySvg(activity.user.contributionsCollection), "utf8");
-  await writeFile(new URL("./assets/languages.svg", root), languageSvg(languages), "utf8");
+  await writeFile(new URL("./assets/profile.svg", root), profileImage, "utf8");
+  await writeFile(new URL("./assets/github-activity.svg", root), activityImage, "utf8");
+  await writeFile(new URL("./assets/activity.svg", root), activityImageStandalone, "utf8");
+  await writeFile(new URL("./assets/languages.svg", root), languageImage, "utf8");
   const projectFiles = new Set();
   for (const repository of projects) {
     const fileName = `project-${repositorySlug(repository.name)}.svg`;
