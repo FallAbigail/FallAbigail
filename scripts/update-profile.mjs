@@ -266,10 +266,10 @@ function profileSvg(profile, repositories, languages, activity, avatarDataUrl) {
   const panelWidth = width - padding * 2;
   const topLanguages = languages.slice(0, 6);
   const stats = [
-    { value: repositories.length, label: "PROJECT REPOS", color: "#75e7ff" },
-    { value: repositories.reduce((total, repo) => total + repo.stargazers_count, 0), label: "STARS", color: "#ffd36d" },
-    { value: repositories.reduce((total, repo) => total + repo.forks_count, 0), label: "FORKS", color: "#c6a5ff" },
-    { value: activity.user.contributionsCollection.totalCommitContributions, label: "COMMITS · 12 MO", color: "#ff8fca" },
+    { value: profile.public_repos, label: "PUBLIC REPOS", color: "#75e7ff" },
+    { value: repositories.reduce((total, repo) => total + repo.stargazers_count, 0), label: "STARS RECEIVED", color: "#ffd36d" },
+    { value: repositories.reduce((total, repo) => total + repo.forks_count, 0), label: "FORKS RECEIVED", color: "#c6a5ff" },
+    { value: activity.user.contributionsCollection.contributionCalendar.totalContributions, label: "CONTRIBUTIONS · 12 MO", color: "#ff8fca" },
   ];
   const contributionCalendar = activity.user.contributionsCollection.contributionCalendar;
   const totalContributions = contributionCalendar.totalContributions;

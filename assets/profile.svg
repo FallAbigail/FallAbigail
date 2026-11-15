@@ -95,14 +95,14 @@
   <rect class="panel" x="28" y="376" width="944" height="116" rx="16" />
   <text x="50" y="399" class="panel-kicker">PROFILE METRICS</text>
   
-      <text x="146" y="439" text-anchor="middle" class="stat-value">4</text>
-      <text x="146" y="459" text-anchor="middle" class="stat-label" fill="#75e7ff">PROJECT REPOS</text><line x1="264" y1="405" x2="264" y2="463" class="divider" />
+      <text x="146" y="439" text-anchor="middle" class="stat-value">5</text>
+      <text x="146" y="459" text-anchor="middle" class="stat-label" fill="#75e7ff">PUBLIC REPOS</text><line x1="264" y1="405" x2="264" y2="463" class="divider" />
       <text x="382" y="439" text-anchor="middle" class="stat-value">0</text>
-      <text x="382" y="459" text-anchor="middle" class="stat-label" fill="#ffd36d">STARS</text><line x1="500" y1="405" x2="500" y2="463" class="divider" />
+      <text x="382" y="459" text-anchor="middle" class="stat-label" fill="#ffd36d">STARS RECEIVED</text><line x1="500" y1="405" x2="500" y2="463" class="divider" />
       <text x="618" y="439" text-anchor="middle" class="stat-value">0</text>
-      <text x="618" y="459" text-anchor="middle" class="stat-label" fill="#c6a5ff">FORKS</text><line x1="736" y1="405" x2="736" y2="463" class="divider" />
-      <text x="854" y="439" text-anchor="middle" class="stat-value">0</text>
-      <text x="854" y="459" text-anchor="middle" class="stat-label" fill="#ff8fca">COMMITS · 12 MO</text>
+      <text x="618" y="459" text-anchor="middle" class="stat-label" fill="#c6a5ff">FORKS RECEIVED</text><line x1="736" y1="405" x2="736" y2="463" class="divider" />
+      <text x="854" y="439" text-anchor="middle" class="stat-value">6</text>
+      <text x="854" y="459" text-anchor="middle" class="stat-label" fill="#ff8fca">CONTRIBUTIONS · 12 MO</text>
 
   <rect class="panel" x="28" y="506" width="944" height="174" rx="16" />
   <text x="50" y="533" class="panel-title">LANGUAGE DISTRIBUTION</text>
