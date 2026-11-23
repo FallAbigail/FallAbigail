@@ -25,7 +25,7 @@
       <rect x="26" y="94" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
       <text x="41.5" y="114" text-anchor="middle" class="glyph" fill="#ffd36d" font-size="12">✦</text>
       <text x="69" y="106" class="label">Contributions · 12 mo</text>
-      <text x="69" y="123" class="value">208</text>
+      <text x="69" y="123" class="value">240</text>
     </g><g>
       <rect x="26" y="139" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
       <text x="41.5" y="159" text-anchor="middle" class="glyph" fill="#75e7ff" font-size="12">⌘</text>
@@ -80,7 +80,7 @@
       <rect x="446" y="319" width="31" height="31" rx="9" fill="#111522" stroke="#292c42" />
       <text x="461.5" y="339" text-anchor="middle" class="glyph" fill="#ff8fca" font-size="12">…</text>
       <text x="489" y="331" class="label">Calendar-only contributions · 12 mo</text>
-      <text x="489" y="348" class="value">203</text>
+      <text x="489" y="348" class="value">235</text>
     </g>
   <text x="852" y="381" text-anchor="end" class="subtitle">Calendar total follows GitHub's contribution graph</text>
 </svg>
